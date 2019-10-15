@@ -1,6 +1,7 @@
 extern crate rand;
 use rand::*;
 
+#[derive(Clone)]
 pub struct IdealSoliton {
     limit: f32,
     rng: StdRng,

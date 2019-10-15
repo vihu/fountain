@@ -18,6 +18,7 @@ pub enum EncoderType {
 }
 
 /// Encoder for Luby transform codes
+#[derive(Clone)]
 pub struct Encoder {
     data: Vec<u8>,
     len: usize,
