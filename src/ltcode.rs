@@ -31,7 +31,7 @@ pub struct Encoder {
 }
 
 #[derive(Debug)]
-enum DropType {
+pub enum DropType {
     /// First is seed, second degree
     Seeded(usize, usize),
     /// Just a list of edges
@@ -42,9 +42,9 @@ enum DropType {
 #[derive(Debug)]
 pub struct Droplet {
     /// The droptype can be based on seed or a list of edges
-    droptype: DropType,
+    pub droptype: DropType,
     /// The payload of the Droplet
-    data: Vec<u8>,
+    pub data: Vec<u8>,
 }
 
 impl Droplet {
