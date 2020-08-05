@@ -188,6 +188,8 @@ struct RxDroplet {
     data: Vec<u8>,
 }
 
+unsafe impl Send for RxDroplet {}
+
 struct Block {
     idx: usize,
     edges: Vec<Rc<RefCell<RxDroplet>>>,
