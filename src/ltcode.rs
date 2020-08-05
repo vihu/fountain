@@ -26,7 +26,7 @@ pub struct Encoder {
     rng: StdRng,
     cnt_blocks: usize,
     sol: IdealSoliton,
-    cnt: usize,
+    pub cnt: usize,
     encodertype: EncoderType,
 }
 
