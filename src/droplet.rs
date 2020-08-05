@@ -18,7 +18,7 @@ impl Droplet {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RxDroplet {
     pub edges_idx: Vec<usize>,
     pub data: Vec<u8>,
