@@ -1,8 +1,9 @@
 extern crate rand;
 extern crate fountaincode;
 
-use self::fountaincode::ltcode::{Encoder, EncoderType, Decoder};
-use self::fountaincode::ltcode::CatchResult::*;
+use self::fountaincode::encoder::Encoder;
+use self::fountaincode::decoder::Decoder;
+use self::fountaincode::types::*;
 
 use rand::{thread_rng, Rng};
 
@@ -18,10 +19,10 @@ fn encode_decode_random(total_len: usize, chunk_len: usize) {
 
     for drop in enc {
         match dec.catch(drop) {
-            Missing(stats) => {
+            CatchResult::Missing(stats) => {
                 println!("Missing blocks {:?}", stats);
             }
-            Finished(data, stats) => {
+            CatchResult::Finished(data, stats) => {
                 assert_eq!(to_compare.len(), data.len());
                 for i in 0..len {
                     println!("stats: {:?}", stats);
@@ -48,11 +49,11 @@ fn encode_decode_systematic(total_len: usize, chunk_len: usize) {
     for drop in enc {
         cnt_drops += 1;
         match dec.catch(drop) {
-            Missing(stats) => {
+            CatchResult::Missing(stats) => {
                 //a systematic encoder and no loss on channel should only need k symbols
                 assert_eq!(stats.cnt_chunks-stats.unknown_chunks, cnt_drops)
             }
-            Finished(data, stats) => {
+            CatchResult::Finished(data, stats) => {
                 assert_eq!(to_compare.len(), data.len());
                 assert_eq!(stats.cnt_chunks, cnt_drops);
                 for i in 0..len {
@@ -78,11 +79,11 @@ fn encode_decode_systematic_with_loss(total_len: usize, chunk_len: usize, loss: 
     for drop in enc {
         if loss_rng.next_f32() > loss {
             match dec.catch(drop) {
-                Missing(_) => {
+                CatchResult::Missing(_) => {
                     //a systematic encoder and no loss on channel should only need k symbols
                     //assert_eq!(stats.cnt_chunks-stats.unknown_chunks, cnt_drops)
                 }
-                Finished(data, _) => {
+                CatchResult::Finished(data, _) => {
                     assert_eq!(to_compare.len(), data.len());
                     for i in 0..len {
                         assert_eq!(to_compare[i], data[i]);
