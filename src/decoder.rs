@@ -4,6 +4,7 @@ use crate::types::{DropType, CatchResult};
 use crate::block::Block;
 use crate::droplet::{Droplet, RxDroplet};
 use crate::encoder::get_sample_from_rng_by_seed;
+use rand::distributions::{Uniform};
 
 /// Decoder for the Luby transform
 pub struct Decoder {
@@ -14,6 +15,7 @@ pub struct Decoder {
     cnt_received_drops: usize,
     blocks: Vec<Block>,
     data: Vec<u8>,
+    dist: rand::distributions::Uniform<usize>,
 }
 
 #[derive(Debug)]
@@ -82,6 +84,7 @@ impl Decoder {
             blocks: edges,
             data: data,
             blocksize: blocksize,
+            dist: Uniform::new(0, number_of_chunks),
         }
     }
 
@@ -161,7 +164,7 @@ impl Decoder {
         let sample: Vec<usize> =
             match drop.droptype {
                 DropType::Seeded(seed, degree) => {
-                    get_sample_from_rng_by_seed(seed, self.number_of_chunks, degree)
+                    get_sample_from_rng_by_seed(seed, self.dist, degree)
                 }
                 DropType::Edges(edges) => vec![edges],
             };

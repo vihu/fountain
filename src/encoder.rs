@@ -15,6 +15,7 @@ pub struct Encoder {
     len: usize,
     blocksize: usize,
     rng: rand::prelude::ThreadRng,
+    dist: rand::distributions::Uniform<usize>,
     cnt_blocks: usize,
     sol: IdealSoliton,
     pub cnt: usize,
@@ -66,6 +67,7 @@ impl Encoder {
             len: len,
             blocksize: blocksize,
             rng: rng,
+            dist: Uniform::new(0, cnt_blocks),
             cnt_blocks: cnt_blocks,
             sol: sol,
             cnt: 0,
@@ -74,10 +76,9 @@ impl Encoder {
     }
 }
 
-pub fn get_sample_from_rng_by_seed(seed: u64, n: usize, degree: usize) -> Vec<usize> {
+pub fn get_sample_from_rng_by_seed(seed: u64, range: rand::distributions::Uniform<usize>, degree: usize) -> Vec<usize> {
     let rng: StdRng = SeedableRng::seed_from_u64(seed);
     //sample(&mut rng, 0..n, degree)
-    let range = Uniform::new(0, n);
     let v: Vec<usize> = rng.sample_iter(range).take(degree).collect();
     return v;
 }
@@ -89,7 +90,7 @@ impl Iterator for Encoder {
             EncoderType::Random => {
                 let degree = self.sol.next().unwrap() as usize; //TODO: try! macro
                 let seed = self.rng.gen::<u64>();
-                let sample = get_sample_from_rng_by_seed(seed, self.cnt_blocks, degree);
+                let sample = get_sample_from_rng_by_seed(seed, self.dist, degree);
                 let mut r: Vec<u8> = vec![0; self.blocksize];
 
                 for k in sample {
