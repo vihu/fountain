@@ -35,7 +35,7 @@ pub enum DropType {
     /// First is seed, second degree
     Seeded(usize, usize),
     /// Just a list of edges
-    Edges(Vec<usize>),
+    Edges(usize),
 }
 
 /// A Droplet is created by the Encoder.
@@ -148,7 +148,7 @@ impl Iterator for Encoder {
                 if (self.cnt + 2) > self.cnt_blocks {
                     self.encodertype = EncoderType::Random;
                 }
-                Some(Droplet::new(DropType::Edges(vec![self.cnt]), r))
+                Some(Droplet::new(DropType::Edges(self.cnt), r))
             }
         };
 
@@ -333,12 +333,13 @@ impl Decoder {
     /// When it is possible to reconstruct a set, the bytes are returned
     pub fn catch(&mut self, drop: Droplet) -> CatchResult {
         self.cnt_received_drops += 1;
-        let sample: Vec<usize> = match drop.droptype {
-            DropType::Seeded(seed, degree) => {
-                get_sample_from_rng_by_seed(seed, self.number_of_chunks, degree)
-            }
-            DropType::Edges(edges) => edges,
-        };
+        let sample: Vec<usize> =
+            match drop.droptype {
+                DropType::Seeded(seed, degree) => {
+                    get_sample_from_rng_by_seed(seed, self.number_of_chunks, degree)
+                }
+                DropType::Edges(edges) => vec![edges],
+            };
 
         let rxdrop = RxDroplet {
             edges_idx: sample,
