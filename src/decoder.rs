@@ -85,14 +85,14 @@ impl Decoder {
     }
 
     fn process_droplet(&mut self, droplet: RxDroplet) {
-        let mut drops: Vec<Rc<RefCell<RxDroplet>>> = Vec::new();
-        drops.push(Rc::new(RefCell::new(droplet)));
+        let mut drops: Vec<Box<RxDroplet>> = Vec::new();
+        drops.push(Box::new(droplet));
         loop {
             // a loop is used instead of recursion
             match drops.pop() {
                 None => return,
                 Some(drop) => {
-                    let edges = drop.borrow().edges_idx.clone();
+                    let edges = drop.edges_idx.clone();
                     // TODO: Maybe add shortcut for the first wave of
                     // systematic codes, reduce overhead
 
@@ -100,7 +100,7 @@ impl Decoder {
                         // the list is edited, hence we copy first
                         let block = self.blocks.get_mut(ed).unwrap();
                         if block.is_known {
-                            let mut b_drop = drop.borrow_mut();
+                            let mut b_drop = drop.clone();
                             for i in 0..self.blocksize {
                                 b_drop.data[i] ^= self.data[block.begin_at + i];
                             }
@@ -110,14 +110,14 @@ impl Decoder {
                             block.edges.push(drop.clone());
                         }
                     }
-                    if drop.borrow().edges_idx.len() == 1 {
-                        let first_idx = drop.borrow().edges_idx.clone().get(0).unwrap().clone();
+                    if drop.clone().edges_idx.len() == 1 {
+                        let first_idx = drop.edges_idx.clone().get(0).unwrap().clone();
 
                         let block = self.blocks.get_mut(first_idx).unwrap();
 
                         if block.is_known == false {
                             {
-                                let b_drop = drop.borrow();
+                                let b_drop = &drop;
                                 for i in 0..self.blocksize {
                                     self.data[block.begin_at + i] = b_drop.data[i];
                                 }
@@ -126,11 +126,11 @@ impl Decoder {
                             self.unknown_chunks -= 1;
 
                             while block.edges.len() > 0 {
-                                let edge = block.edges.pop().unwrap();
-                                let mut m_edge = edge.borrow_mut();
+                                let mut edge = block.edges.pop().unwrap();
+                                let m_edge = &mut edge;
 
                                 if m_edge.edges_idx.len() == 1 {
-                                    drops.push(edge.clone());
+                                    drops.push(edge);
                                 } else {
                                     for i in 0..self.blocksize {
                                         m_edge.data[i] ^= self.data[block.begin_at + i]

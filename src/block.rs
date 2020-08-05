@@ -1,8 +1,8 @@
-use std::cell::RefCell;
-use std::rc::Rc;
+// use std::cell::RefCell;
+// use std::rc::Rc;
 use crate::droplet::RxDroplet;
 
-type Edges = Vec<Rc<RefCell<RxDroplet>>>;
+type Edges = Vec<Box<RxDroplet>>;
 
 pub struct Block {
     pub idx: usize,
