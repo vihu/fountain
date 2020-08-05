@@ -1,6 +1,6 @@
 use std::vec::Vec;
 use std::cmp;
-use rand::{thread_rng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng};
 use rand::rngs::StdRng;
 use rand::distributions::{Uniform};
 use crate::types::{EncoderType, DropType};
@@ -14,7 +14,7 @@ pub struct Encoder {
     data: Vec<u8>,
     len: usize,
     blocksize: usize,
-    rng: rand::prelude::ThreadRng,
+    rng: StdRng,
     dist: rand::distributions::Uniform<usize>,
     cnt_blocks: usize,
     sol: IdealSoliton,
@@ -57,7 +57,7 @@ impl Encoder {
     /// }
     /// ```
     pub fn new(data: Vec<u8>, blocksize: usize, encodertype: EncoderType) -> Encoder {
-        let mut rng = thread_rng();
+        let mut rng = StdRng::from_entropy();
 
         let len = data.len();
         let cnt_blocks = ((len as f32) / blocksize as f32).ceil() as usize;
