@@ -38,8 +38,9 @@ impl Decoder {
     ///     use self::fountaincode::decoder::Decoder;
     ///     use self::fountaincode::types::*;
     ///     use self::rand::{thread_rng, Rng};
+    ///     use rand::distributions::Alphanumeric;
     ///
-    ///     let s:String = thread_rng().gen_ascii_chars().take(1_024).collect();
+    ///     let s:String = thread_rng().sample_iter(Alphanumeric).take(1024).collect();
     ///     let buf = s.into_bytes();
     ///     let to_compare = buf.clone();
     ///     let length = buf.len();
