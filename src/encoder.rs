@@ -38,7 +38,8 @@ impl Encoder {
     /// extern crate fountaincode;
     ///
     /// fn main() {
-    ///     use fountaincode::ltcode::{Encoder, EncoderType};
+    ///     use fountaincode::encoder::Encoder;
+    ///     use fountaincode::types::EncoderType;
     ///     use self::rand::{thread_rng, Rng};
     ///
     ///     let s:String = thread_rng().gen_ascii_chars().take(1_024).collect();

@@ -49,10 +49,10 @@ impl Decoder {
     ///
     ///     for drop in enc {
     ///         match dec.catch(drop) {
-    ///             Missing(stats) => {
+    ///             CatchResult::Missing(stats) => {
     ///                 println!("Missing blocks {:?}", stats);
     ///             }
-    ///             Finished(data, stats) => {
+    ///             CatchResult::Finished(data, stats) => {
     ///                 for i in 0..length {
     ///                     assert_eq!(to_compare[i], data[i]);
     ///                 }
