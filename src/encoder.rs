@@ -95,14 +95,14 @@ impl Iterator for Encoder {
                 let degree = self.sol.next().unwrap() as usize; //TODO: try! macro
                 let seed = self.rng.gen::<u64>();
                 let sample = get_sample_from_rng_by_seed(seed, self.dist, degree);
-                let mut r: Vec<u8> = vec![0; self.blocksize];
+                let mut r = vec![0; self.blocksize];
 
                 for k in sample {
                     let begin = k * self.blocksize;
                     let end = cmp::min((k + 1) * self.blocksize, self.len);
 
-                    for (j, i) in (begin..end).enumerate() {
-                        r[j] ^= self.data[i];
+                    for (src_dat, drop_dat) in self.data[begin..end].iter().zip(r.iter_mut()) {
+                        *drop_dat ^= src_dat;
                     }
                 }
                 Some(Droplet::new(DropType::Seeded(seed, degree), r))
@@ -110,10 +110,10 @@ impl Iterator for Encoder {
             EncoderType::Systematic => {
                 let begin = self.cnt * self.blocksize;
                 let end = cmp::min((self.cnt + 1) * self.blocksize, self.len);
-                let mut r: Vec<u8> = vec![0; self.blocksize];
+                let mut r = vec![0; self.blocksize];
 
-                for (j, i) in (begin..end).enumerate() {
-                    r[j] = self.data[i];
+                for (src_dat, drop_dat) in self.data[begin..end].iter().zip(r.iter_mut()) {
+                    *drop_dat = *src_dat;
                 }
                 if (self.cnt + 2) > self.cnt_blocks {
                     self.encodertype = EncoderType::Random;
