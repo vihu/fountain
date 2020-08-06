@@ -1,6 +1,8 @@
 use std::vec::Vec;
 use std::cmp;
-use rand::{Rng, sample, StdRng, SeedableRng};
+use rand::{Rng, SeedableRng};
+use rand::rngs::StdRng;
+use rand::distributions::{Uniform};
 use crate::types::{EncoderType, DropType};
 use crate::droplet::Droplet;
 
@@ -13,6 +15,7 @@ pub struct Encoder {
     len: usize,
     blocksize: usize,
     rng: StdRng,
+    dist: rand::distributions::Uniform<usize>,
     cnt_blocks: usize,
     sol: IdealSoliton,
     pub cnt: usize,
@@ -41,8 +44,9 @@ impl Encoder {
     ///     use fountaincode::encoder::Encoder;
     ///     use fountaincode::types::EncoderType;
     ///     use self::rand::{thread_rng, Rng};
+    ///     use rand::distributions::Alphanumeric;
     ///
-    ///     let s:String = thread_rng().gen_ascii_chars().take(1_024).collect();
+    ///     let s:String = thread_rng().sample_iter(Alphanumeric).take(1024).collect();
     ///     let buf = s.into_bytes();
     ///
     ///     let mut enc = Encoder::new(buf, 64, EncoderType::Random);
@@ -53,16 +57,17 @@ impl Encoder {
     /// }
     /// ```
     pub fn new(data: Vec<u8>, blocksize: usize, encodertype: EncoderType) -> Encoder {
-        let mut rng = StdRng::new().unwrap();
+        let mut rng = StdRng::from_entropy();
 
         let len = data.len();
         let cnt_blocks = ((len as f32) / blocksize as f32).ceil() as usize;
-        let sol = IdealSoliton::new(cnt_blocks, rng.gen::<usize>());
+        let sol = IdealSoliton::new(cnt_blocks, rng.gen::<u64>());
         Encoder {
             data: data,
             len: len,
             blocksize: blocksize,
             rng: rng,
+            dist: Uniform::new(0, cnt_blocks),
             cnt_blocks: cnt_blocks,
             sol: sol,
             cnt: 0,
@@ -71,10 +76,11 @@ impl Encoder {
     }
 }
 
-pub fn get_sample_from_rng_by_seed(seed: usize, n: usize, degree: usize) -> Vec<usize> {
-    let seedarr: &[_] = &[seed];
-    let mut rng: StdRng = SeedableRng::from_seed(seedarr);
-    sample(&mut rng, 0..n, degree)
+pub fn get_sample_from_rng_by_seed(seed: u64, range: rand::distributions::Uniform<usize>, degree: usize) -> Vec<usize> {
+    let rng: StdRng = SeedableRng::seed_from_u64(seed);
+    //sample(&mut rng, 0..n, degree)
+    let v: Vec<usize> = rng.sample_iter(range).take(degree).collect();
+    return v;
 }
 
 impl Iterator for Encoder {
@@ -83,8 +89,8 @@ impl Iterator for Encoder {
         let drop = match self.encodertype {
             EncoderType::Random => {
                 let degree = self.sol.next().unwrap() as usize; //TODO: try! macro
-                let seed = self.rng.gen::<u32>() as usize;
-                let sample = get_sample_from_rng_by_seed(seed, self.cnt_blocks, degree);
+                let seed = self.rng.gen::<u64>();
+                let sample = get_sample_from_rng_by_seed(seed, self.dist, degree);
                 let mut r: Vec<u8> = vec![0; self.blocksize];
 
                 for k in sample {

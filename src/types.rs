@@ -14,7 +14,7 @@ pub enum EncoderType {
 #[derive(Debug)]
 pub enum DropType {
     /// First is seed, second degree
-    Seeded(usize, usize),
+    Seeded(u64, usize),
     /// Just a list of edges
     Edges(usize),
 }

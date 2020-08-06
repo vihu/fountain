@@ -1,5 +1,6 @@
 extern crate rand;
 use rand::*;
+use rand::rngs::StdRng;
 
 #[derive(Clone)]
 pub struct IdealSoliton {
@@ -8,9 +9,8 @@ pub struct IdealSoliton {
 }
 
 impl IdealSoliton {
-    pub fn new(k: usize, seed: usize) -> IdealSoliton {
-        let seedarr: &[_] = &[seed];
-        let rng: StdRng = SeedableRng::from_seed(seedarr);
+    pub fn new(k: usize, seed: u64) -> IdealSoliton {
+        let rng = SeedableRng::seed_from_u64(seed);
         IdealSoliton {
             limit: 1.0 / (k as f32),
             rng: rng,
