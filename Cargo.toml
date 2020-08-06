@@ -2,6 +2,7 @@
 name = "fountaincode"
 version = "0.0.8"
 authors = ["Christoph Doblander <chris@degree.at>"]
+edition = "2018"
 
 description = "Implementation of the Luby Transform Code in Rust"
 homepage = "https://github.com/chrido/fountain"
