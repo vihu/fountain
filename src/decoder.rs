@@ -87,8 +87,8 @@ impl Decoder {
     }
 
     fn process_droplet(&mut self, droplet: RxDroplet) {
-        let mut drops: Vec<Box<RxDroplet>> = Vec::new();
-        drops.push(Box::new(droplet));
+        let mut drops: Vec<RxDroplet> = Vec::new();
+        drops.push(droplet);
         loop {
             // a loop is used instead of recursion
             match drops.pop() {
