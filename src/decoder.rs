@@ -78,12 +78,12 @@ impl Decoder {
 
         Decoder {
             total_length: len,
-            number_of_chunks: number_of_chunks,
+            number_of_chunks,
             unknown_chunks: number_of_chunks,
             cnt_received_drops: 0,
             blocks: edges,
-            data: data,
-            blocksize: blocksize,
+            data,
+            blocksize,
             dist: Uniform::new(0, number_of_chunks),
         }
     }
@@ -115,11 +115,11 @@ impl Decoder {
                         }
                     }
                     if drop.clone().edges_idx.len() == 1 {
-                        let first_idx = drop.edges_idx.clone().get(0).unwrap().clone();
+                        let first_idx = *drop.edges_idx.clone().get(0).unwrap();
 
                         let block = self.blocks.get_mut(first_idx).unwrap();
 
-                        if block.is_known == false {
+                        if !block.is_known {
                             {
                                 let b_drop = &drop;
                                 for i in 0..self.blocksize {
@@ -129,7 +129,7 @@ impl Decoder {
                             block.is_known = true;
                             self.unknown_chunks -= 1;
 
-                            while block.edges.len() > 0 {
+                            while !block.edges.is_empty() {
                                 let mut edge = block.edges.pop().unwrap();
                                 let m_edge = &mut edge;
 

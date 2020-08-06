@@ -11,10 +11,7 @@ pub struct Droplet {
 
 impl Droplet {
     pub fn new(droptype: DropType, data: Vec<u8>) -> Droplet {
-        Droplet {
-            droptype: droptype,
-            data: data,
-        }
+        Droplet { droptype, data }
     }
 }
 

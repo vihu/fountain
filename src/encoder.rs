@@ -65,15 +65,15 @@ impl Encoder {
         let cnt_blocks = ((len as f32) / blocksize as f32).ceil() as usize;
         let sol = IdealSoliton::new(cnt_blocks, rng.gen::<u64>());
         Encoder {
-            data: data,
-            len: len,
-            blocksize: blocksize,
-            rng: rng,
+            data,
+            len,
+            blocksize,
+            rng,
             dist: Uniform::new(0, cnt_blocks),
-            cnt_blocks: cnt_blocks,
-            sol: sol,
+            cnt_blocks,
+            sol,
             cnt: 0,
-            encodertype: encodertype,
+            encodertype,
         }
     }
 }
@@ -84,9 +84,7 @@ pub fn get_sample_from_rng_by_seed(
     degree: usize,
 ) -> Vec<usize> {
     let rng: StdRng = SeedableRng::seed_from_u64(seed);
-    //sample(&mut rng, 0..n, degree)
-    let v: Vec<usize> = rng.sample_iter(range).take(degree).collect();
-    return v;
+    rng.sample_iter(range).take(degree).collect()
 }
 
 impl Iterator for Encoder {
@@ -102,11 +100,9 @@ impl Iterator for Encoder {
                 for k in sample {
                     let begin = k * self.blocksize;
                     let end = cmp::min((k + 1) * self.blocksize, self.len);
-                    let mut j = 0;
 
-                    for i in begin..end {
+                    for (j, i) in (begin..end).enumerate() {
                         r[j] ^= self.data[i];
-                        j += 1;
                     }
                 }
                 Some(Droplet::new(DropType::Seeded(seed, degree), r))
@@ -116,10 +112,8 @@ impl Iterator for Encoder {
                 let end = cmp::min((self.cnt + 1) * self.blocksize, self.len);
                 let mut r: Vec<u8> = vec![0; self.blocksize];
 
-                let mut j = 0;
-                for i in begin..end {
+                for (j, i) in (begin..end).enumerate() {
                     r[j] = self.data[i];
-                    j += 1;
                 }
                 if (self.cnt + 2) > self.cnt_blocks {
                     self.encodertype = EncoderType::Random;

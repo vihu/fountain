@@ -11,7 +11,7 @@ impl IdealSoliton {
         let rng = SeedableRng::seed_from_u64(seed);
         IdealSoliton {
             limit: 1.0 / (k as f32),
-            rng: rng,
+            rng,
         }
     }
 }
