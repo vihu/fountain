@@ -82,9 +82,9 @@ pub fn get_sample_from_rng_by_seed(
     seed: u64,
     range: rand::distributions::Uniform<usize>,
     degree: usize,
-) -> Vec<usize> {
+) -> impl Iterator<Item = usize> {
     let rng: StdRng = SeedableRng::seed_from_u64(seed);
-    rng.sample_iter(range).take(degree).collect()
+    rng.sample_iter(range).take(degree)
 }
 
 impl Iterator for Encoder {

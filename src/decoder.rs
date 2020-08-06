@@ -163,7 +163,9 @@ impl Decoder {
     pub fn catch(&mut self, drop: Droplet) -> CatchResult {
         self.cnt_received_drops += 1;
         let sample: Vec<usize> = match drop.droptype {
-            DropType::Seeded(seed, degree) => get_sample_from_rng_by_seed(seed, self.dist, degree),
+            DropType::Seeded(seed, degree) => {
+                get_sample_from_rng_by_seed(seed, self.dist, degree).collect()
+            }
             DropType::Edges(edges) => vec![edges],
         };
 
