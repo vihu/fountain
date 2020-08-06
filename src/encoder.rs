@@ -106,8 +106,8 @@ impl Iterator for Encoder {
                 Some(Droplet::new(DropType::Seeded(seed, degree), r))
             }
             EncoderType::Systematic => {
-                let begin = self.cnt * self.blocksize;
-                let end = cmp::min((self.cnt + 1) * self.blocksize, self.len);
+                let begin = (self.cnt % self.cnt_blocks) * self.blocksize;
+                let end = cmp::min(((self.cnt % self.cnt_blocks) + 1) * self.blocksize, self.len);
                 let mut r: Vec<u8> = vec![0; self.blocksize];
 
                 let mut j = 0;
@@ -115,10 +115,10 @@ impl Iterator for Encoder {
                     r[j] = self.data[i];
                     j += 1;
                 }
-                if (self.cnt + 2) > self.cnt_blocks {
+                if (self.cnt + 2) > self.cnt_blocks * 2 {
                     self.encodertype = EncoderType::Random;
                 }
-                Some(Droplet::new(DropType::Edges(self.cnt), r))
+                Some(Droplet::new(DropType::Edges(self.cnt % self.cnt_blocks), r))
             }
         };
 
