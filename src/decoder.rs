@@ -1,8 +1,8 @@
-use crate::types::{DropType, CatchResult};
 use crate::block::Block;
 use crate::droplet::{Droplet, RxDroplet};
 use crate::encoder::get_sample_from_rng_by_seed;
-use rand::distributions::{Uniform};
+use crate::types::{CatchResult, DropType};
+use rand::distributions::Uniform;
 
 /// Decoder for the Luby transform
 pub struct Decoder {
@@ -138,7 +138,8 @@ impl Decoder {
                                         m_edge.data[i] ^= self.data[block.begin_at + i]
                                     }
 
-                                    let pos = m_edge.edges_idx
+                                    let pos = m_edge
+                                        .edges_idx
                                         .iter()
                                         .position(|x| x == &block.idx)
                                         .unwrap();
@@ -159,13 +160,10 @@ impl Decoder {
     /// When it is possible to reconstruct a set, the bytes are returned
     pub fn catch(&mut self, drop: Droplet) -> CatchResult {
         self.cnt_received_drops += 1;
-        let sample: Vec<usize> =
-            match drop.droptype {
-                DropType::Seeded(seed, degree) => {
-                    get_sample_from_rng_by_seed(seed, self.dist, degree)
-                }
-                DropType::Edges(edges) => vec![edges],
-            };
+        let sample: Vec<usize> = match drop.droptype {
+            DropType::Seeded(seed, degree) => get_sample_from_rng_by_seed(seed, self.dist, degree),
+            DropType::Edges(edges) => vec![edges],
+        };
 
         let rxdrop = RxDroplet {
             edges_idx: sample,

@@ -1,10 +1,10 @@
-use std::vec::Vec;
-use std::cmp;
-use rand::{Rng, SeedableRng};
-use rand::rngs::StdRng;
-use rand::distributions::{Uniform};
-use crate::types::{EncoderType, DropType};
 use crate::droplet::Droplet;
+use crate::types::{DropType, EncoderType};
+use rand::distributions::Uniform;
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
+use std::cmp;
+use std::vec::Vec;
 
 use soliton::IdealSoliton;
 
@@ -46,7 +46,7 @@ impl Encoder {
     ///     use self::rand::{thread_rng, Rng};
     ///     use rand::distributions::Alphanumeric;
     ///
-    ///     let s:String = thread_rng().sample_iter(Alphanumeric).take(1024).collect();
+    ///     let s: String = thread_rng().sample_iter(Alphanumeric).take(1024).collect();
     ///     let buf = s.into_bytes();
     ///
     ///     let mut enc = Encoder::new(buf, 64, EncoderType::Random);
@@ -76,7 +76,11 @@ impl Encoder {
     }
 }
 
-pub fn get_sample_from_rng_by_seed(seed: u64, range: rand::distributions::Uniform<usize>, degree: usize) -> Vec<usize> {
+pub fn get_sample_from_rng_by_seed(
+    seed: u64,
+    range: rand::distributions::Uniform<usize>,
+    degree: usize,
+) -> Vec<usize> {
     let rng: StdRng = SeedableRng::seed_from_u64(seed);
     //sample(&mut rng, 0..n, degree)
     let v: Vec<usize> = rng.sample_iter(range).take(degree).collect();
