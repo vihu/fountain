@@ -2,11 +2,10 @@
 // use std::rc::Rc;
 use crate::droplet::RxDroplet;
 
-type Edges = Vec<Box<RxDroplet>>;
-
+#[derive(Clone)]
 pub struct Block {
     pub idx: usize,
-    pub edges: Edges,
+    pub edges: Vec<RxDroplet>,
     pub begin_at: usize,
     pub is_known: bool,
 }
@@ -14,7 +13,7 @@ pub struct Block {
 impl Block {
     pub fn new(
         idx: usize,
-        edges: Edges,
+        edges: Vec<RxDroplet>,
         begin_at: usize,
         is_known: bool ) -> Block {
         Block {
