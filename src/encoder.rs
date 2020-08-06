@@ -1,12 +1,14 @@
-use crate::droplet::Droplet;
-use crate::types::{DropType, EncoderType};
-use rand::distributions::Uniform;
-use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
-use std::cmp;
-use std::vec::Vec;
-
-use soliton::IdealSoliton;
+use crate::soliton::IdealSoliton;
+use crate::{
+    droplet::Droplet,
+    types::{DropType, EncoderType},
+};
+use rand::{
+    distributions::Uniform,
+    rngs::StdRng,
+    {Rng, SeedableRng},
+};
+use std::{cmp, vec::Vec};
 
 /// Encoder for Luby transform codes
 #[derive(Clone)]

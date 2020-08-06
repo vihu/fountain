@@ -1,7 +1,9 @@
-use crate::block::Block;
-use crate::droplet::{Droplet, RxDroplet};
-use crate::encoder::get_sample_from_rng_by_seed;
-use crate::types::{CatchResult, DropType};
+use crate::{
+    block::Block,
+    droplet::{Droplet, RxDroplet},
+    encoder::get_sample_from_rng_by_seed,
+    types::{CatchResult, DropType},
+};
 use rand::distributions::Uniform;
 
 /// Decoder for the Luby transform

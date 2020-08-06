@@ -1,6 +1,4 @@
-extern crate rand;
-use rand::rngs::StdRng;
-use rand::*;
+use rand::{rngs::StdRng, Rng, SeedableRng};
 
 #[derive(Clone)]
 pub struct IdealSoliton {
