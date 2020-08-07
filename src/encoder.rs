@@ -1,4 +1,4 @@
-use crate::soliton::IdealSoliton;
+use crate::soliton::RobustSoliton;
 use crate::{
     droplet::Droplet,
     types::{DropType, EncoderType},
@@ -19,7 +19,7 @@ pub struct Encoder {
     rng: StdRng,
     dist: rand::distributions::Uniform<usize>,
     cnt_blocks: usize,
-    sol: IdealSoliton,
+    sol: RobustSoliton,
     pub cnt: usize,
     encodertype: EncoderType,
 }
@@ -63,7 +63,7 @@ impl Encoder {
 
         let len = data.len();
         let cnt_blocks = ((len as f32) / blocksize as f32).ceil() as usize;
-        let sol = IdealSoliton::new(cnt_blocks, rng.gen::<u64>());
+        let sol = RobustSoliton::new(cnt_blocks, rng.gen::<u64>(), 0.2, 0.05);
         Encoder {
             data,
             len,
