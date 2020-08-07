@@ -1,16 +1,18 @@
-extern crate rand;
 extern crate fountaincode;
+extern crate rand;
 
-use self::fountaincode::encoder::Encoder;
 use self::fountaincode::decoder::Decoder;
+use self::fountaincode::encoder::Encoder;
 use self::fountaincode::types::*;
 
+use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
-use rand::distributions::{Alphanumeric};
-
 
 fn encode_decode_random(total_len: usize, chunk_len: usize) {
-    let s:String = thread_rng().sample_iter(Alphanumeric).take(total_len).collect();
+    let s: String = thread_rng()
+        .sample_iter(Alphanumeric)
+        .take(total_len)
+        .collect();
     let buf = s.into_bytes();
     let len = buf.len();
     let to_compare = buf.clone();
@@ -30,14 +32,17 @@ fn encode_decode_random(total_len: usize, chunk_len: usize) {
                     assert_eq!(to_compare[i], data[i]);
                 }
                 println!("Finished, stas: {:?}", stats);
-                return
+                return;
             }
         }
     }
 }
 
 fn encode_decode_systematic(total_len: usize, chunk_len: usize) {
-    let s:String = thread_rng().sample_iter(Alphanumeric).take(total_len).collect();
+    let s: String = thread_rng()
+        .sample_iter(Alphanumeric)
+        .take(total_len)
+        .collect();
     let buf = s.into_bytes();
     let len = buf.len();
     let to_compare = buf.clone();
@@ -52,7 +57,7 @@ fn encode_decode_systematic(total_len: usize, chunk_len: usize) {
         match dec.catch(drop) {
             CatchResult::Missing(stats) => {
                 //a systematic encoder and no loss on channel should only need k symbols
-                assert_eq!(stats.cnt_chunks-stats.unknown_chunks, cnt_drops)
+                assert_eq!(stats.cnt_chunks - stats.unknown_chunks, cnt_drops)
             }
             CatchResult::Finished(data, stats) => {
                 assert_eq!(to_compare.len(), data.len());
@@ -60,14 +65,17 @@ fn encode_decode_systematic(total_len: usize, chunk_len: usize) {
                 for i in 0..len {
                     assert_eq!(to_compare[i], data[i]);
                 }
-                return
+                return;
             }
         }
     }
 }
 
 fn encode_decode_systematic_with_loss(total_len: usize, chunk_len: usize, loss: f32) {
-    let s:String = thread_rng().sample_iter(Alphanumeric).take(total_len).collect();
+    let s: String = thread_rng()
+        .sample_iter(Alphanumeric)
+        .take(total_len)
+        .collect();
     let buf = s.into_bytes();
     let len = buf.len();
     let to_compare = buf.clone();
@@ -89,14 +97,12 @@ fn encode_decode_systematic_with_loss(total_len: usize, chunk_len: usize, loss: 
                     for i in 0..len {
                         assert_eq!(to_compare[i], data[i]);
                     }
-                    return
+                    return;
                 }
             }
         }
     }
 }
-
-
 
 #[test]
 fn test_encode_decode_simple() {
@@ -136,7 +142,7 @@ fn combinations_encode_decode_with_loss_begin_with_systematic() {
     for size in 1000..1100 {
         for chunk in 100..130 {
             for loss in vec![0.1, 0.3, 0.5, 0.9] {
-                 encode_decode_systematic_with_loss(size, chunk, loss);
+                encode_decode_systematic_with_loss(size, chunk, loss);
             }
         }
     }

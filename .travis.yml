@@ -4,8 +4,15 @@ rust:
     - nightly
     - stable
 
+jobs:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
+
 os:
     - linux
+
+before_install: rustup component add clippy rustfmt
 
 before_script:
     - rustc --version
@@ -14,4 +21,6 @@ before_script:
 script:
     - cargo build --verbose
     - cargo test --verbose
+    - cargo clippy -- -Fclippy::all
+    - cargo fmt -- --check
     - cargo doc --verbose

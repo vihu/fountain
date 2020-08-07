@@ -11,10 +11,7 @@ pub struct Droplet {
 
 impl Droplet {
     pub fn new(droptype: DropType, data: Vec<u8>) -> Droplet {
-        Droplet {
-            droptype: droptype,
-            data: data,
-        }
+        Droplet { droptype, data }
     }
 }
 
@@ -23,4 +20,3 @@ pub struct RxDroplet {
     pub edges_idx: Vec<usize>,
     pub data: Vec<u8>,
 }
-

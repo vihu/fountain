@@ -1,5 +1,3 @@
-// use std::cell::RefCell;
-// use std::rc::Rc;
 use crate::droplet::RxDroplet;
 
 #[derive(Clone)]
@@ -11,16 +9,12 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn new(
-        idx: usize,
-        edges: Vec<RxDroplet>,
-        begin_at: usize,
-        is_known: bool ) -> Block {
+    pub fn new(idx: usize, edges: Vec<RxDroplet>, begin_at: usize, is_known: bool) -> Block {
         Block {
             idx,
             edges,
             begin_at,
-            is_known
+            is_known,
         }
     }
 }
