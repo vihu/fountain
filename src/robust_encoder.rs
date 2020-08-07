@@ -1,7 +1,7 @@
-use crate::soliton::IdealSoliton;
+use crate::robust_soliton::RobustSoliton;
 use crate::{
     droplet::Droplet,
-    types::{DropType, EncoderType},
+    types::{DropType, EncoderType, SolitonType},
 };
 use rand::{
     distributions::Uniform,
@@ -12,19 +12,19 @@ use std::{cmp, vec::Vec};
 
 /// Encoder for Luby transform codes
 #[derive(Clone)]
-pub struct Encoder {
+pub struct RobustEncoder {
     data: Vec<u8>,
     len: usize,
     blocksize: usize,
     rng: StdRng,
     dist: rand::distributions::Uniform<usize>,
     cnt_blocks: usize,
-    sol: IdealSoliton,
+    sol: RobustSoliton,
     pub cnt: usize,
     encodertype: EncoderType,
 }
 
-impl Encoder {
+impl RobustEncoder {
     /// Constructs a new encoder for Luby transform codes.
     /// In case you send the packages over UDP, the blocksize
     /// should be the MTU size.
@@ -43,38 +43,70 @@ impl Encoder {
     /// extern crate fountaincode;
     ///
     /// fn main() {
-    ///     use fountaincode::encoder::Encoder;
-    ///     use fountaincode::types::EncoderType;
+    ///     use fountaincode::robust_encoder::RobustEncoder;
+    ///     use fountaincode::types::{EncoderType, SolitonType};
     ///     use self::rand::{thread_rng, Rng};
     ///     use rand::distributions::Alphanumeric;
     ///
     ///     let s: String = thread_rng().sample_iter(Alphanumeric).take(1024).collect();
     ///     let buf = s.into_bytes();
     ///
-    ///     let mut enc = Encoder::new(buf, 64, EncoderType::Random);
+    ///     let mut enc = RobustEncoder::new(buf, 64, EncoderType::Random, SolitonType::RobustConst, 0.2, 40, 0.05);
     ///
     ///     for i in 1..10 {
     ///         println!("droplet {:?}: {:?}", i, enc.next());
     ///     }
     /// }
     /// ```
-    pub fn new(data: Vec<u8>, blocksize: usize, encodertype: EncoderType) -> Encoder {
+    pub fn new(
+        data: Vec<u8>,
+        blocksize: usize,
+        encodertype: EncoderType,
+        soltype: SolitonType,
+        c: f32,
+        spike: usize,
+        delta: f32) -> RobustEncoder {
         let mut rng = StdRng::from_entropy();
 
         let len = data.len();
         let cnt_blocks = ((len as f32) / blocksize as f32).ceil() as usize;
-        let sol = IdealSoliton::new(cnt_blocks, rng.gen::<u64>());
-        Encoder {
-            data,
-            len,
-            blocksize,
-            rng,
-            dist: Uniform::new(0, cnt_blocks),
-            cnt_blocks,
-            sol,
-            cnt: 0,
-            encodertype,
+
+        match soltype {
+            SolitonType::RobustConst => {
+                let sol = RobustSoliton::new(cnt_blocks, rng.gen::<u64>(), c, delta);
+                RobustEncoder {
+                    data,
+                    len,
+                    blocksize,
+                    rng,
+                    dist: Uniform::new(0, cnt_blocks),
+                    cnt_blocks,
+                    sol,
+                    cnt: 0,
+                    encodertype,
+                }
+            }
+            SolitonType::RobustSpike => {
+                let sol = RobustSoliton::new_from_spike(
+                    cnt_blocks,
+                    rng.gen::<u64>(),
+                    c,
+                    spike,
+                    delta);
+                RobustEncoder {
+                    data,
+                    len,
+                    blocksize,
+                    rng,
+                    dist: Uniform::new(0, cnt_blocks),
+                    cnt_blocks,
+                    sol,
+                    cnt: 0,
+                    encodertype,
+                }
+            }
         }
+
     }
 }
 
@@ -87,7 +119,7 @@ pub fn get_sample_from_rng_by_seed(
     rng.sample_iter(range).take(degree)
 }
 
-impl Iterator for Encoder {
+impl Iterator for RobustEncoder {
     type Item = Droplet;
     fn next(&mut self) -> Option<Droplet> {
         let drop = match self.encodertype {

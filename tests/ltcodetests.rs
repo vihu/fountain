@@ -2,7 +2,7 @@ extern crate fountaincode;
 extern crate rand;
 
 use self::fountaincode::decoder::Decoder;
-use self::fountaincode::encoder::Encoder;
+use self::fountaincode::ideal_encoder::IdealEncoder;
 use self::fountaincode::types::*;
 
 use rand::distributions::Alphanumeric;
@@ -17,21 +17,21 @@ fn encode_decode_random(total_len: usize, chunk_len: usize) {
     let len = buf.len();
     let to_compare = buf.clone();
 
-    let enc = Encoder::new(buf, chunk_len, EncoderType::Random);
+    let enc = IdealEncoder::new(buf, chunk_len, EncoderType::Random);
     let mut dec = Decoder::new(len, chunk_len);
 
     for drop in enc {
         match dec.catch(drop) {
-            CatchResult::Missing(stats) => {
-                println!("Missing blocks {:?}", stats);
+            CatchResult::Missing(_stats) => {
+                // println!("Missing blocks {:?}", stats);
             }
-            CatchResult::Finished(data, stats) => {
+            CatchResult::Finished(data, _stats) => {
                 assert_eq!(to_compare.len(), data.len());
                 for i in 0..len {
-                    println!("stats: {:?}", stats);
+                    // println!("stats: {:?}", stats);
                     assert_eq!(to_compare[i], data[i]);
                 }
-                println!("Finished, stas: {:?}", stats);
+                // println!("Finished, stas: {:?}", stats);
                 return;
             }
         }
@@ -47,7 +47,7 @@ fn encode_decode_systematic(total_len: usize, chunk_len: usize) {
     let len = buf.len();
     let to_compare = buf.clone();
 
-    let enc = Encoder::new(buf, chunk_len, EncoderType::Systematic);
+    let enc = IdealEncoder::new(buf, chunk_len, EncoderType::Systematic);
     let mut dec = Decoder::new(len, chunk_len);
 
     let mut cnt_drops = 0;
@@ -80,7 +80,7 @@ fn encode_decode_systematic_with_loss(total_len: usize, chunk_len: usize, loss: 
     let len = buf.len();
     let to_compare = buf.clone();
 
-    let enc = Encoder::new(buf, chunk_len, EncoderType::Systematic);
+    let enc = IdealEncoder::new(buf, chunk_len, EncoderType::Systematic);
     let mut dec = Decoder::new(len, chunk_len);
 
     let mut loss_rng = thread_rng();

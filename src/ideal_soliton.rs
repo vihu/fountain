@@ -1,6 +1,6 @@
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct IdealSoliton {
     limit: f32,
     rng: StdRng,

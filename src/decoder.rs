@@ -1,7 +1,7 @@
 use crate::{
     block::Block,
     droplet::{Droplet, RxDroplet},
-    encoder::get_sample_from_rng_by_seed,
+    robust_encoder::get_sample_from_rng_by_seed,
     types::{CatchResult, DropType},
 };
 use rand::distributions::Uniform;
@@ -36,7 +36,7 @@ impl Decoder {
     /// extern crate fountaincode;
     ///
     /// fn main() {
-    ///     use self::fountaincode::encoder::Encoder;
+    ///     use self::fountaincode::ideal_encoder::IdealEncoder;
     ///     use self::fountaincode::decoder::Decoder;
     ///     use self::fountaincode::types::*;
     ///     use self::rand::{thread_rng, Rng};
@@ -47,7 +47,7 @@ impl Decoder {
     ///     let to_compare = buf.clone();
     ///     let length = buf.len();
     ///
-    ///     let mut enc = Encoder::new(buf, 64, EncoderType::Random);
+    ///     let mut enc = IdealEncoder::new(buf, 64, EncoderType::Random);
     ///     let mut dec = Decoder::new(length, 64);
     ///
     ///     for drop in enc {
