@@ -1,9 +1,8 @@
 use rand::{rngs::StdRng, Rng, SeedableRng};
-use crate::ideal_soliton::IdealSoliton;
 
 #[derive(Debug, Clone)]
 pub struct RobustSoliton {
-    ideal_soliton: IdealSoliton,
+    k: usize,
     // constant
     c: f32,
     // another constant
@@ -20,12 +19,11 @@ pub struct RobustSoliton {
 
 impl RobustSoliton {
     pub fn new(k: usize, seed: u64, c: f32, delta: f32) -> RobustSoliton {
-        let ideal_soliton = IdealSoliton::new(k, seed);
         let r = compute_r(k, c, delta);
         let m = compute_spike_pos(k, r);
-        let beta = compute_normalization_factor(k, &mut ideal_soliton.clone(), m, r, delta);
+        let beta = compute_normalization_factor(k, m, r, delta);
         RobustSoliton {
-            ideal_soliton,
+            k,
             c,
             r,
             delta,
@@ -37,11 +35,10 @@ impl RobustSoliton {
     }
 
     pub fn new_from_spike(k: usize, seed: u64, c: f32, m: usize, delta: f32) -> RobustSoliton {
-        let ideal_soliton = IdealSoliton::new(k, seed);
         let r = k as f32 / m as f32;
-        let beta = compute_normalization_factor(k, &mut ideal_soliton.clone(), m, r, delta);
+        let beta = compute_normalization_factor(k, m, r, delta);
         RobustSoliton {
-            ideal_soliton,
+            k,
             c,
             r,
             delta,
@@ -62,7 +59,7 @@ impl Iterator for RobustSoliton {
         let u = self.rng.gen::<f32>();
 
         while sum <= u {
-            sum += (self.ideal_soliton.next().unwrap() as f32 + unnormalized_robust_soliton(index as usize, self.m, self.r, self.delta)) / self.beta;
+            sum += (ideal_soliton(self.k, index) + unnormalized_robust_soliton(index as usize, self.m, self.r, self.delta)) / self.beta;
             index += 1;
         }
         self.curr = self.curr + 1;
@@ -80,14 +77,13 @@ fn compute_spike_pos(k: usize, r: f32) -> usize {
 
 fn compute_normalization_factor(
     k: usize,
-    ideal_soliton: &mut IdealSoliton,
     m: usize,
     r: f32,
     delta: f32) -> f32 {
     let mut sum = 0.0;
 
-    for pos in 0..k {
-        sum += ideal_soliton.next().unwrap() as f32 + unnormalized_robust_soliton(pos, m, r, delta)
+    for pos in 1..k {
+        sum += ideal_soliton(k, pos) + unnormalized_robust_soliton(pos, m, r, delta)
     }
     sum
 }
@@ -103,5 +99,13 @@ fn unnormalized_robust_soliton(
         (r / delta).ln() as f32 / m as f32
     } else {
         0.0
+    }
+}
+
+fn ideal_soliton(k: usize, i: usize) -> f32 {
+    if i == 1 {
+        1.0 / k as f32
+    } else {
+        1.0 / (i * (i - 1)) as f32
     }
 }
