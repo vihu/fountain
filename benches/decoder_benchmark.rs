@@ -118,17 +118,17 @@ fn encode_decode_systematic_with_loss_robust_const(
 fn bench_ideal_vs_robust(c: &mut Criterion) {
     let mut group = c.benchmark_group("IdealVsRobust");
 
-    let sizes: Vec<usize> = (1000..1002).collect();
-    let chunks: Vec<usize> = (100..105).collect();
+    let sizes: Vec<usize> = (1000..1100).collect();
+    let chunks: Vec<usize> = (100..130).collect();
     let losses: Vec<f32> = vec![0.1, 0.3, 0.5, 0.9];
 
     for (size, chunk, loss) in izip!(&sizes, &chunks, &losses) {
         group.bench_with_input(BenchmarkId::new("Ideal", size), size,
             |b, size| b.iter(|| encode_decode_systematic_with_loss(*size, *chunk, *loss)));
         group.bench_with_input(BenchmarkId::new("RobustSpike", size), size,
-            |b, size| b.iter(|| encode_decode_systematic_with_loss_robust_spike(*size, *chunk, 40, *loss)));
-        group.bench_with_input(BenchmarkId::new("RobustConst", size), size,
-            |b, size| b.iter(|| encode_decode_systematic_with_loss_robust_const(*size, *chunk, 0.2, *loss)));
+            |b, size| b.iter(|| encode_decode_systematic_with_loss_robust_spike(*size, *chunk, 110, *loss)));
+        // group.bench_with_input(BenchmarkId::new("RobustConst", size), size,
+        //     |b, size| b.iter(|| encode_decode_systematic_with_loss_robust_const(*size, *chunk, 0.2, *loss)));
     }
     group.finish();
 }
