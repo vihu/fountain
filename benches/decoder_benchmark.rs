@@ -1,12 +1,12 @@
 use criterion::*;
 
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
-use itertools::izip;
 use fountaincode::decoder::Decoder;
 use fountaincode::ideal_encoder::IdealEncoder;
 use fountaincode::robust_encoder::RobustEncoder;
 use fountaincode::types::*;
+use itertools::izip;
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 
 fn robust_enc_dec_helper(
     total_len: usize,
@@ -15,7 +15,8 @@ fn robust_enc_dec_helper(
     c: f32,
     spike: Option<usize>,
     delta: f32,
-    enc_type: EncoderType) {
+    enc_type: EncoderType,
+) {
     let s: String = thread_rng()
         .sample_iter(Alphanumeric)
         .take(total_len)
@@ -32,12 +33,12 @@ fn robust_enc_dec_helper(
     for drop in enc {
         if loss_rng.gen::<f32>() > loss {
             match dec.catch(drop) {
-                CatchResult::Missing(stats) => {
+                CatchResult::Missing(_stats) => {
                     //a systematic encoder and no loss on channel should only need k symbols
                     //assert_eq!(stats.cnt_chunks-stats.unknown_chunks, cnt_drops)
                     // println!("Missing blocks {:?}", stats);
                 }
-                CatchResult::Finished(data, stats) => {
+                CatchResult::Finished(data, _stats) => {
                     // println!("Finished, stas: {:?}", stats);
                     assert_eq!(to_compare.len(), data.len());
                     for i in 0..len {
@@ -50,11 +51,7 @@ fn robust_enc_dec_helper(
     }
 }
 
-fn ideal_enc_dec_helper(
-    total_len: usize,
-    chunk_len: usize,
-    loss: f32,
-    enc_type: EncoderType) {
+fn ideal_enc_dec_helper(total_len: usize, chunk_len: usize, loss: f32, enc_type: EncoderType) {
     let s: String = thread_rng()
         .sample_iter(Alphanumeric)
         .take(total_len)
@@ -101,10 +98,22 @@ fn bench_ideal_vs_robust(c: &mut Criterion) {
     let robust_delta = 0.05;
 
     for (size, chunk, loss) in izip!(&sizes, &chunks, &losses) {
-        group.bench_with_input(BenchmarkId::new("Ideal", size), size,
-            |b, size| b.iter(|| ideal_enc_dec_helper(*size, *chunk, *loss, EncoderType::Systematic)));
-        group.bench_with_input(BenchmarkId::new("Robust", size), size,
-             |b, size| b.iter(|| robust_enc_dec_helper(*size, *chunk, *loss, robust_c, None, robust_delta, EncoderType::Systematic)));
+        group.bench_with_input(BenchmarkId::new("Ideal", size), size, |b, size| {
+            b.iter(|| ideal_enc_dec_helper(*size, *chunk, *loss, EncoderType::Systematic))
+        });
+        group.bench_with_input(BenchmarkId::new("Robust", size), size, |b, size| {
+            b.iter(|| {
+                robust_enc_dec_helper(
+                    *size,
+                    *chunk,
+                    *loss,
+                    robust_c,
+                    None,
+                    robust_delta,
+                    EncoderType::Systematic,
+                )
+            })
+        });
         // group.bench_with_input(BenchmarkId::new("RobustConst", size), size,
         //     |b, size| b.iter(|| encode_decode_systematic_with_loss_robust_const(*size, *chunk, 0.2, *loss)));
     }

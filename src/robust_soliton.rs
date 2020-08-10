@@ -1,5 +1,5 @@
-use rand::{rngs::StdRng, Rng, SeedableRng};
 use crate::soliton::Soliton;
+use rand::{rngs::StdRng, Rng, SeedableRng};
 
 #[derive(Debug, Clone)]
 pub struct RobustSoliton {
@@ -15,7 +15,7 @@ pub struct RobustSoliton {
     // spike position, usually: k/R unless configured manually as a tuning parameter
     m: usize,
     rng: StdRng,
-    curr: u64
+    curr: u64,
 }
 
 impl RobustSoliton {
@@ -59,10 +59,11 @@ impl Soliton for RobustSoliton {
         let u = self.rng.gen::<f32>();
 
         while sum <= u {
-            sum += (rho(self.k, index) + tau(index as usize, self.m, self.r, self.delta)) / self.beta;
+            sum +=
+                (rho(self.k, index) + tau(index as usize, self.m, self.r, self.delta)) / self.beta;
             index += 1;
         }
-        self.curr = self.curr + 1;
+        self.curr += 1;
         index - 1
     }
 }
@@ -75,11 +76,7 @@ fn compute_m(k: usize, r: f32) -> usize {
     ((k as f32) / r).floor() as usize
 }
 
-fn compute_beta(
-    k: usize,
-    m: usize,
-    r: f32,
-    delta: f32) -> f32 {
+fn compute_beta(k: usize, m: usize, r: f32, delta: f32) -> f32 {
     let mut sum = 0.0;
 
     for pos in 1..k {

@@ -1,5 +1,5 @@
-use rand::{rngs::StdRng, Rng, SeedableRng};
 use crate::soliton::Soliton;
+use rand::{rngs::StdRng, Rng, SeedableRng};
 
 #[derive(Debug, Clone)]
 pub struct IdealSoliton {
@@ -21,8 +21,7 @@ impl Soliton for IdealSoliton {
     fn next(&mut self) -> usize {
         let y = self.rng.gen::<f32>();
         if y >= self.limit {
-            let res = (1.0 / y).ceil() as usize;
-            res
+            (1.0 / y).ceil() as usize
         } else {
             1
         }

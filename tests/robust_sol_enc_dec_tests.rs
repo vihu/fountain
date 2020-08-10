@@ -15,7 +15,8 @@ fn enc_dec_helper(
     c: f32,
     spike: Option<usize>,
     delta: f32,
-    enc_type: EncoderType) {
+    enc_type: EncoderType,
+) {
     let s: String = thread_rng()
         .sample_iter(Alphanumeric)
         .take(total_len)

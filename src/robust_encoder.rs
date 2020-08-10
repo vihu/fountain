@@ -1,7 +1,7 @@
 use crate::{
-    soliton::Soliton,
-    robust_soliton::RobustSoliton,
     droplet::Droplet,
+    robust_soliton::RobustSoliton,
+    soliton::Soliton,
     types::{DropType, EncoderType},
 };
 use rand::{
@@ -65,7 +65,8 @@ impl RobustEncoder {
         encodertype: EncoderType,
         c: f32,
         spike: Option<usize>,
-        delta: f32) -> RobustEncoder {
+        delta: f32,
+    ) -> RobustEncoder {
         let mut rng = StdRng::from_entropy();
 
         let len = data.len();

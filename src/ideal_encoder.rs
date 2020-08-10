@@ -1,7 +1,7 @@
 use crate::{
-    soliton::Soliton,
-    ideal_soliton::IdealSoliton,
     droplet::Droplet,
+    ideal_soliton::IdealSoliton,
+    soliton::Soliton,
     types::{DropType, EncoderType},
 };
 use rand::{
@@ -58,10 +58,7 @@ impl IdealEncoder {
     ///     }
     /// }
     /// ```
-    pub fn new(
-        data: Vec<u8>,
-        blocksize: usize,
-        encodertype: EncoderType) -> IdealEncoder {
+    pub fn new(data: Vec<u8>, blocksize: usize, encodertype: EncoderType) -> IdealEncoder {
         let mut rng = StdRng::from_entropy();
 
         let len = data.len();
