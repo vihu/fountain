@@ -21,8 +21,9 @@ impl RobustSoliton {
     pub fn new(k: usize, seed: u64, c: f32, spike: Option<usize>, delta: f32) -> RobustSoliton {
         let r = compute_r(k, c, delta);
         if let Some(m) = spike {
+            // Spike position was given, use that instead of calculating
             let r = k as f32 / m as f32;
-            let beta = compute_normalization_factor(k, m, r, delta);
+            let beta = compute_beta(k, m, r, delta);
             RobustSoliton {
                 k,
                 c,
@@ -34,8 +35,8 @@ impl RobustSoliton {
                 rng: SeedableRng::seed_from_u64(seed),
             }
         } else {
-            let m = compute_spike_pos(k, r);
-            let beta = compute_normalization_factor(k, m, r, delta);
+            let m = compute_m(k, r);
+            let beta = compute_beta(k, m, r, delta);
             RobustSoliton {
                 k,
                 c,
@@ -59,7 +60,7 @@ impl Iterator for RobustSoliton {
         let u = self.rng.gen::<f32>();
 
         while sum <= u {
-            sum += (ideal_soliton(self.k, index) + unnormalized_robust_soliton(index as usize, self.m, self.r, self.delta)) / self.beta;
+            sum += (rho(self.k, index) + tau(index as usize, self.m, self.r, self.delta)) / self.beta;
             index += 1;
         }
         self.curr = self.curr + 1;
@@ -71,11 +72,11 @@ fn compute_r(k: usize, c: f32, delta: f32) -> f32 {
     c * ((k as f32) / delta).ln() * (k as f32).sqrt()
 }
 
-fn compute_spike_pos(k: usize, r: f32) -> usize {
+fn compute_m(k: usize, r: f32) -> usize {
     ((k as f32) / r).floor() as usize
 }
 
-fn compute_normalization_factor(
+fn compute_beta(
     k: usize,
     m: usize,
     r: f32,
@@ -83,17 +84,13 @@ fn compute_normalization_factor(
     let mut sum = 0.0;
 
     for pos in 1..k {
-        sum += ideal_soliton(k, pos) + unnormalized_robust_soliton(pos, m, r, delta)
+        sum += rho(k, pos) + tau(pos, m, r, delta)
     }
     sum
 }
 
-fn unnormalized_robust_soliton(
-    index: usize,
-    m: usize,
-    r: f32,
-    delta: f32) -> f32 {
-    if 1 <= index && index <= m - 1 {
+fn tau(index: usize, m: usize, r: f32, delta: f32) -> f32 {
+    if index >= 1 && index < m {
         (1 / (index * m)) as f32
     } else if index == m {
         (r / delta).ln() as f32 / m as f32
@@ -102,7 +99,7 @@ fn unnormalized_robust_soliton(
     }
 }
 
-fn ideal_soliton(k: usize, i: usize) -> f32 {
+fn rho(k: usize, i: usize) -> f32 {
     if i == 1 {
         1.0 / k as f32
     } else {
