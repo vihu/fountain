@@ -11,41 +11,41 @@ pub struct RobustSoliton {
     delta: f32,
     // normalization factor
     beta: f32,
-    // spike position
+    // spike position, usually: k/R unless configured manually as a tuning parameter
     m: usize,
     rng: StdRng,
     curr: u64
 }
 
 impl RobustSoliton {
-    pub fn new(k: usize, seed: u64, c: f32, delta: f32) -> RobustSoliton {
+    pub fn new(k: usize, seed: u64, c: f32, spike: Option<usize>, delta: f32) -> RobustSoliton {
         let r = compute_r(k, c, delta);
-        let m = compute_spike_pos(k, r);
-        let beta = compute_normalization_factor(k, m, r, delta);
-        RobustSoliton {
-            k,
-            c,
-            r,
-            delta,
-            beta,
-            m,
-            curr: 0,
-            rng: SeedableRng::seed_from_u64(seed),
-        }
-    }
-
-    pub fn new_from_spike(k: usize, seed: u64, c: f32, m: usize, delta: f32) -> RobustSoliton {
-        let r = k as f32 / m as f32;
-        let beta = compute_normalization_factor(k, m, r, delta);
-        RobustSoliton {
-            k,
-            c,
-            r,
-            delta,
-            beta,
-            m,
-            curr: 0,
-            rng: SeedableRng::seed_from_u64(seed),
+        if let Some(m) = spike {
+            let r = k as f32 / m as f32;
+            let beta = compute_normalization_factor(k, m, r, delta);
+            RobustSoliton {
+                k,
+                c,
+                r,
+                delta,
+                beta,
+                m,
+                curr: 0,
+                rng: SeedableRng::seed_from_u64(seed),
+            }
+        } else {
+            let m = compute_spike_pos(k, r);
+            let beta = compute_normalization_factor(k, m, r, delta);
+            RobustSoliton {
+                k,
+                c,
+                r,
+                delta,
+                beta,
+                m,
+                curr: 0,
+                rng: SeedableRng::seed_from_u64(seed),
+            }
         }
     }
 }

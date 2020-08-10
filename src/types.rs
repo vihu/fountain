@@ -24,9 +24,3 @@ pub enum CatchResult {
     Finished(Vec<u8>, Statistics),
     Missing(Statistics),
 }
-
-#[derive(Debug)]
-pub enum SolitonType {
-    RobustConst,
-    RobustSpike,
-}

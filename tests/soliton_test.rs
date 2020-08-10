@@ -17,8 +17,8 @@ fn soliton_compare_test() {
     let mut rng = StdRng::from_entropy();
     let cnt_blocks = 100;
     let mut sol = IdealSoliton::new(cnt_blocks, rng.gen::<u64>());
-    let mut rsol = RobustSoliton::new(cnt_blocks, rng.gen::<u64>(), 0.2, 0.05);
-    let mut rsol2 = RobustSoliton::new_from_spike(cnt_blocks, rng.gen::<u64>(), 0.2, 40, 0.05);
+    let mut rsol = RobustSoliton::new(cnt_blocks, rng.gen::<u64>(), 0.2, None, 0.05);
+    let mut rsol2 = RobustSoliton::new(cnt_blocks, rng.gen::<u64>(), 0.2, Some(40), 0.05);
 
     println!("sol: {:#?}", sol);
     println!("rsol: {:#?}", rsol);
