@@ -16,6 +16,8 @@ rand = "0.7.3"
 [dev-dependencies]
 criterion = "0.3"
 itertools = "0.9.0"
+proptest = "0.10.0"
+stopwatch = "0.0.7"
 
 [[bench]]
 name = "decoder_benchmark"

@@ -39,7 +39,7 @@ fn enc_dec_helper(
                     println!("Missing blocks {:?}", stats);
                 }
                 CatchResult::Finished(data, stats) => {
-                    println!("Finished, stas: {:?}", stats);
+                    println!("Finished, stats: {:?}", stats);
                     assert_eq!(to_compare.len(), data.len());
                     for i in 0..len {
                         assert_eq!(to_compare[i], data[i]);

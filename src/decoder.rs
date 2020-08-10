@@ -59,7 +59,7 @@ impl Decoder {
     ///                 for i in 0..length {
     ///                     assert_eq!(to_compare[i], data[i]);
     ///                 }
-    ///                 println!("Finished, stas: {:?}", stats);
+    ///                 println!("Finished, stats: {:?}", stats);
     ///                 //write data to disk??
     ///                 return
     ///             }
