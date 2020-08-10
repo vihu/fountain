@@ -1,5 +1,6 @@
-use crate::robust_soliton::RobustSoliton;
 use crate::{
+    soliton::Soliton,
+    robust_soliton::RobustSoliton,
     droplet::Droplet,
     types::{DropType, EncoderType},
 };
@@ -99,7 +100,7 @@ impl Iterator for RobustEncoder {
     fn next(&mut self) -> Option<Droplet> {
         let drop = match self.encodertype {
             EncoderType::Random => {
-                let degree = self.sol.next().unwrap() as usize; //TODO: try! macro
+                let degree = self.sol.next();
                 let seed = self.rng.gen::<u64>();
                 let sample = get_sample_from_rng_by_seed(seed, self.dist, degree);
                 let mut r = vec![0; self.blocksize];

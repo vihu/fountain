@@ -1,4 +1,5 @@
 use rand::{rngs::StdRng, Rng, SeedableRng};
+use crate::soliton::Soliton;
 
 #[derive(Debug, Clone)]
 pub struct RobustSoliton {
@@ -51,10 +52,8 @@ impl RobustSoliton {
     }
 }
 
-impl Iterator for RobustSoliton {
-    type Item = usize;
-
-    fn next(&mut self) -> Option<usize> {
+impl Soliton for RobustSoliton {
+    fn next(&mut self) -> usize {
         let mut sum = 0.0;
         let mut index = 1;
         let u = self.rng.gen::<f32>();
@@ -64,7 +63,7 @@ impl Iterator for RobustSoliton {
             index += 1;
         }
         self.curr = self.curr + 1;
-        Some(index - 1)
+        index - 1
     }
 }
 

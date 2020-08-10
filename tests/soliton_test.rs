@@ -1,6 +1,7 @@
 extern crate fountaincode;
 extern crate rand;
 
+use self::fountaincode::soliton::Soliton;
 use self::fountaincode::ideal_soliton::IdealSoliton;
 use self::fountaincode::robust_soliton::RobustSoliton;
 use rand::{rngs::StdRng, Rng, SeedableRng};
@@ -29,9 +30,9 @@ fn soliton_compare_test() {
     let mut r_sum2 = 0;
 
     for _ in 1..tot_iterations {
-        let i_next = sol.next().unwrap();
-        let r_next = rsol.next().unwrap();
-        let r2_next = rsol2.next().unwrap();
+        let i_next = sol.next();
+        let r_next = rsol.next();
+        let r2_next = rsol2.next();
         i_sum += i_next;
         r_sum += r2_next;
         r_sum2 += r2_next;

@@ -8,3 +8,4 @@ pub mod robust_encoder;
 pub mod ideal_soliton;
 pub mod ideal_encoder;
 pub mod types;
+pub mod soliton;
