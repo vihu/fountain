@@ -4,6 +4,7 @@ extern crate stopwatch;
 
 use self::fountaincode::decoder::Decoder;
 use self::fountaincode::ideal_encoder::IdealEncoder;
+use self::fountaincode::encoder::Encoder;
 use self::fountaincode::types::*;
 use proptest::prelude::*;
 use rand::distributions::Alphanumeric;
@@ -22,11 +23,11 @@ proptest! {
         let len = buf.len();
         let to_compare = buf.clone();
 
-        let enc = IdealEncoder::new(buf, chunk_len as usize, EncoderType::Systematic);
+        let mut enc = IdealEncoder::new(buf, chunk_len as usize, EncoderType::Systematic);
         let mut dec = Decoder::new(len, chunk_len as usize);
 
         let sw = Stopwatch::start_new();
-        let res = run(enc, &mut dec);
+        let res = run(&mut enc, &mut dec);
         println!("time: {:#?}", sw.elapsed());
 
         prop_assert_eq!(to_compare, res);
@@ -50,9 +51,9 @@ proptest! {
         let losses = vec![0.1, 0.3, 0.5, 0.9];
 
         for loss in losses {
-            let enc = IdealEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic);
+            let mut enc = IdealEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic);
             let sw = Stopwatch::start_new();
-            res = run_lossy(enc, &mut dec, loss);
+            res = run_lossy(&mut enc, &mut dec, loss);
             println!("total_len: {:?}, chunk_len: {:?}, loss: {:?}, time: {:#?}", total_len, chunk_len, loss, sw.elapsed());
         }
 
@@ -60,39 +61,41 @@ proptest! {
     }
 }
 
-fn run(enc: IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
-    let mut out: Vec<u8> = vec![];
-    for drop in enc {
+fn run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
+    let out = loop {
+        let drop = enc.next();
         match dec.catch(drop) {
             CatchResult::Missing(_stats) => {
                 // println!("Missing blocks {:?}", stats);
+                continue
             }
             CatchResult::Finished(data, _stats) => {
                 // println!("Finished, stats: {:?}", stats);
-                out = data;
-                break;
+                break data
             }
         }
-    }
+    };
     out
 }
 
-fn run_lossy(enc: IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
-    let mut out: Vec<u8> = vec![];
+fn run_lossy(enc: &mut IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
-    for drop in enc {
+
+    let out = loop {
         if loss_rng.gen::<f32>() > loss {
+            let drop = enc.next();
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {
                     // println!("Missing blocks {:?}", stats);
+                    continue
                 }
                 CatchResult::Finished(data, stats) => {
                     println!("overhead: {:?}", stats.overhead);
-                    out = data;
-                    break;
+                    break data
                 }
             }
         }
-    }
+    };
+
     out
 }

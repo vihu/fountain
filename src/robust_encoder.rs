@@ -1,5 +1,6 @@
 use crate::{
     droplet::Droplet,
+    encoder::Encoder,
     robust_soliton::RobustSoliton,
     soliton::Soliton,
     types::{DropType, EncoderType},
@@ -96,9 +97,8 @@ pub fn get_sample_from_rng_by_seed(
     rng.sample_iter(range).take(degree)
 }
 
-impl Iterator for RobustEncoder {
-    type Item = Droplet;
-    fn next(&mut self) -> Option<Droplet> {
+impl Encoder for RobustEncoder {
+    fn next(&mut self) -> Droplet {
         let drop = match self.encodertype {
             EncoderType::Random => {
                 let degree = self.sol.next();
@@ -114,7 +114,7 @@ impl Iterator for RobustEncoder {
                         *drop_dat ^= src_dat;
                     }
                 }
-                Some(Droplet::new(DropType::Seeded(seed, degree), r))
+                Droplet::new(DropType::Seeded(seed, degree), r)
             }
             EncoderType::Systematic => {
                 let begin = self.cnt * self.blocksize;
@@ -127,7 +127,7 @@ impl Iterator for RobustEncoder {
                 if (self.cnt + 2) > self.cnt_blocks {
                     self.encodertype = EncoderType::Random;
                 }
-                Some(Droplet::new(DropType::Edges(self.cnt), r))
+                Droplet::new(DropType::Edges(self.cnt), r)
             }
         };
 

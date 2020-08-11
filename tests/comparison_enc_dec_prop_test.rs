@@ -4,6 +4,7 @@ extern crate stopwatch;
 
 use self::fountaincode::decoder::Decoder;
 use self::fountaincode::ideal_encoder::IdealEncoder;
+use self::fountaincode::encoder::Encoder;
 use self::fountaincode::robust_encoder::RobustEncoder;
 use self::fountaincode::types::*;
 use proptest::prelude::*;
@@ -29,13 +30,13 @@ proptest! {
         let mut res2: Vec<u8> = vec![];
 
         for loss in losses {
-            let renc = RobustEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
+            let mut renc = RobustEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
             let mut sw = Stopwatch::start_new();
-            res1 = robust_run_lossy(renc, &mut dec, loss);
+            res1 = robust_run_lossy(&mut renc, &mut dec, loss);
             let t1 = sw.elapsed();
-            let ienc = IdealEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic);
+            let mut ienc = IdealEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic);
             sw.restart();
-            res2 = ideal_run_lossy(ienc, &mut dec, loss);
+            res2 = ideal_run_lossy(&mut ienc, &mut dec, loss);
             let t2 = sw.elapsed();
             println!("total_len: {:?}, chunk_len: {:?}, loss: {:?}, robust_time: {:?}, ideal_time: {:?}",
                 total_len, chunk_len, loss, t1, t2);
@@ -46,42 +47,41 @@ proptest! {
     }
 }
 
-fn robust_run_lossy(enc: RobustEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
-    let mut out: Vec<u8> = vec![];
+fn robust_run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
-    for drop in enc {
+
+    let out = loop {
         if loss_rng.gen::<f32>() > loss {
+            let drop = enc.next();
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {
                     // println!("Missing blocks {:?}", stats);
                 }
                 CatchResult::Finished(data, stats) => {
                     println!("robust_overhead: {:?}", stats.overhead);
-                    out = data;
-                    break;
+                    break data
                 }
             }
         }
-    }
+    };
     out
 }
 
-fn ideal_run_lossy(enc: IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
-    let mut out: Vec<u8> = vec![];
+fn ideal_run_lossy(enc: &mut IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
-    for drop in enc {
+    let out = loop {
         if loss_rng.gen::<f32>() > loss {
+            let drop = enc.next();
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {
                     // println!("Missing blocks {:?}", stats);
                 }
                 CatchResult::Finished(data, stats) => {
                     println!("ideal_overhead: {:?}", stats.overhead);
-                    out = data;
-                    break;
+                    break data
                 }
             }
         }
-    }
+    };
     out
 }

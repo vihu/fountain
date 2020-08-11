@@ -3,6 +3,7 @@ extern crate rand;
 
 use self::fountaincode::decoder::Decoder;
 use self::fountaincode::robust_encoder::RobustEncoder;
+use self::fountaincode::encoder::Encoder;
 use self::fountaincode::types::*;
 
 use rand::distributions::Alphanumeric;
@@ -25,13 +26,14 @@ fn enc_dec_helper(
     let len = buf.len();
     let to_compare = buf.clone();
 
-    let enc = RobustEncoder::new(buf, chunk_len, enc_type, c, spike, delta);
+    let mut enc = RobustEncoder::new(buf, chunk_len, enc_type, c, spike, delta);
     let mut dec = Decoder::new(len, chunk_len);
 
     let mut loss_rng = thread_rng();
 
-    for drop in enc {
+    loop {
         if loss_rng.gen::<f32>() > loss {
+            let drop = enc.next();
             match dec.catch(drop) {
                 CatchResult::Missing(stats) => {
                     //a systematic encoder and no loss on channel should only need k symbols
