@@ -46,6 +46,7 @@ impl RobustEncoder {
     ///
     /// fn main() {
     ///     use fountaincode::robust_encoder::RobustEncoder;
+    ///     use fountaincode::encoder::Encoder;
     ///     use fountaincode::types::EncoderType;
     ///     use self::rand::{thread_rng, Rng};
     ///     use rand::distributions::Alphanumeric;

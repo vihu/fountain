@@ -45,6 +45,7 @@ impl IdealEncoder {
     ///
     /// fn main() {
     ///     use fountaincode::ideal_encoder::IdealEncoder;
+    ///     use fountaincode::encoder::Encoder;
     ///     use fountaincode::types::EncoderType;
     ///     use self::rand::{thread_rng, Rng};
     ///     use rand::distributions::Alphanumeric;
