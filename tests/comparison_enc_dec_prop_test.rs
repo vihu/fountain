@@ -13,7 +13,36 @@ use rand::{thread_rng, Rng};
 use stopwatch::Stopwatch;
 
 proptest! {
-    #![proptest_config(ProptestConfig::with_cases(50000))]
+    #![proptest_config(ProptestConfig::with_cases(100000))]
+    #[test]
+    fn compare_prop_test(total_len in 1024u64..8192, chunk_len in 8u32..512) {
+        let s: String = thread_rng()
+            .sample_iter(Alphanumeric)
+            .take(total_len as usize)
+            .collect();
+        let buf = s.into_bytes();
+        let len = buf.len();
+
+        let mut dec = Decoder::new(len, chunk_len as usize);
+
+        let mut renc = RobustEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
+        let mut sw = Stopwatch::start_new();
+        let res1 = robust_run(&mut renc, &mut dec);
+        let t1 = sw.elapsed();
+        let mut ienc = IdealEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic);
+        sw.restart();
+        let res2 = ideal_run(&mut ienc, &mut dec);
+        let t2 = sw.elapsed();
+        println!("total_len: {:?}, chunk_len: {:?}, robust_time: {:?}, ideal_time: {:?}",
+            total_len, chunk_len, t1, t2);
+
+        prop_assert_eq!(buf.clone(), res1);
+        prop_assert_eq!(buf.clone(), res2);
+    }
+}
+
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(100000))]
     #[test]
     fn compare_prop_lossy_test(total_len in 1024u64..8192, chunk_len in 8u32..512) {
         let s: String = thread_rng()
@@ -45,6 +74,38 @@ proptest! {
         prop_assert_eq!(buf.clone(), res1);
         prop_assert_eq!(buf.clone(), res2);
     }
+}
+
+fn robust_run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
+    let out = loop {
+        let drop = enc.next();
+        match dec.catch(drop) {
+            CatchResult::Missing(stats) => {
+                println!("robust unknown_chunks: {:?}", stats.unknown_chunks);
+            }
+            CatchResult::Finished(data, stats) => {
+                println!("robust_overhead: {:?}", stats.overhead);
+                break data
+            }
+        }
+    };
+    out
+}
+
+fn ideal_run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
+    let out = loop {
+        let drop = enc.next();
+        match dec.catch(drop) {
+            CatchResult::Missing(stats) => {
+                println!("ideal unknown_chunks: {:?}", stats.unknown_chunks);
+            }
+            CatchResult::Finished(data, stats) => {
+                println!("ideal_overhead: {:?}", stats.overhead);
+                break data
+            }
+        }
+    };
+    out
 }
 
 fn robust_run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
