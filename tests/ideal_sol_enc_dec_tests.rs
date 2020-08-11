@@ -83,8 +83,8 @@ fn ideal_small_encode_decode_with_loss_begin_with_systematic() {
 fn ideal_combinations_encode_decode_with_loss_begin_with_systematic() {
     for size in 1000..1100 {
         for chunk in 100..130 {
-            for loss in vec![0.1, 0.3, 0.5, 0.9] {
-                enc_dec_helper(size, chunk, loss, EncoderType::Systematic);
+            for loss in &[0.1, 0.3, 0.5, 0.9] {
+                enc_dec_helper(size, chunk, *loss, EncoderType::Systematic);
             }
         }
     }

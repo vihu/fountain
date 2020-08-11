@@ -113,8 +113,8 @@ fn robust_enc_dec_uneven_sizes_random_lossy() {
 fn robust_enc_dec_combination_systematic_lossy() {
     for size in 1000..1100 {
         for chunk in 100..130 {
-            for loss in vec![0.1, 0.3, 0.5, 0.9] {
-                enc_dec_helper(size, chunk, loss, 0.2, None, 0.05, EncoderType::Systematic);
+            for loss in &[0.1, 0.3, 0.5, 0.9] {
+                enc_dec_helper(size, chunk, *loss, 0.2, None, 0.05, EncoderType::Systematic);
             }
         }
     }

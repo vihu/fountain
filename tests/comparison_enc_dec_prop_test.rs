@@ -77,7 +77,7 @@ proptest! {
 }
 
 fn robust_run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
-    let out = loop {
+    loop {
         let drop = enc.next();
         match dec.catch(drop) {
             CatchResult::Missing(stats) => {
@@ -88,8 +88,7 @@ fn robust_run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
                 break data
             }
         }
-    };
-    out
+    }
 }
 
 fn ideal_run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
@@ -111,7 +110,7 @@ fn ideal_run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
 fn robust_run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
 
-    let out = loop {
+    loop {
         if loss_rng.gen::<f32>() > loss {
             let drop = enc.next();
             match dec.catch(drop) {
@@ -124,13 +123,12 @@ fn robust_run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Ve
                 }
             }
         }
-    };
-    out
+    }
 }
 
 fn ideal_run_lossy(enc: &mut IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
-    let out = loop {
+    loop {
         if loss_rng.gen::<f32>() > loss {
             let drop = enc.next();
             match dec.catch(drop) {
@@ -143,6 +141,5 @@ fn ideal_run_lossy(enc: &mut IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<
                 }
             }
         }
-    };
-    out
+    }
 }
