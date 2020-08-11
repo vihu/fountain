@@ -4,7 +4,7 @@ use fountaincode::decoder::Decoder;
 use fountaincode::ideal_encoder::IdealEncoder;
 use fountaincode::robust_encoder::RobustEncoder;
 use fountaincode::types::*;
-use itertools::izip;
+use itertools::iproduct;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
@@ -68,13 +68,9 @@ fn ideal_enc_dec_helper(total_len: usize, chunk_len: usize, loss: f32, enc_type:
     for drop in enc {
         if loss_rng.gen::<f32>() > loss {
             match dec.catch(drop) {
-                CatchResult::Missing(stats) => {
-                    //a systematic encoder and no loss on channel should only need k symbols
-                    //assert_eq!(stats.cnt_chunks-stats.unknown_chunks, cnt_drops)
-                    // println!("Missing blocks {:?}", stats);
+                CatchResult::Missing(_stats) => {
                 }
-                CatchResult::Finished(data, stats) => {
-                    // println!("Finished, stas: {:?}", stats);
+                CatchResult::Finished(data, _stats) => {
                     assert_eq!(to_compare.len(), data.len());
                     for i in 0..len {
                         assert_eq!(to_compare[i], data[i]);
@@ -97,7 +93,7 @@ fn bench_ideal_vs_robust(c: &mut Criterion) {
     let robust_c = 0.2;
     let robust_delta = 0.05;
 
-    for (size, chunk, loss) in izip!(&sizes, &chunks, &losses) {
+    for (size, chunk, loss) in iproduct!(&sizes, &chunks, &losses) {
         group.bench_with_input(BenchmarkId::new("Ideal", size), size, |b, size| {
             b.iter(|| ideal_enc_dec_helper(*size, *chunk, *loss, EncoderType::Systematic))
         });
@@ -114,8 +110,6 @@ fn bench_ideal_vs_robust(c: &mut Criterion) {
                 )
             })
         });
-        // group.bench_with_input(BenchmarkId::new("RobustConst", size), size,
-        //     |b, size| b.iter(|| encode_decode_systematic_with_loss_robust_const(*size, *chunk, 0.2, *loss)));
     }
     group.finish();
 }
