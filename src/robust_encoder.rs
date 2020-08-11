@@ -1,5 +1,6 @@
 use crate::{
     droplet::Droplet,
+    encoder::Encoder,
     robust_soliton::RobustSoliton,
     soliton::Soliton,
     types::{DropType, EncoderType},
@@ -45,6 +46,7 @@ impl RobustEncoder {
     ///
     /// fn main() {
     ///     use fountaincode::robust_encoder::RobustEncoder;
+    ///     use fountaincode::encoder::Encoder;
     ///     use fountaincode::types::EncoderType;
     ///     use self::rand::{thread_rng, Rng};
     ///     use rand::distributions::Alphanumeric;
@@ -96,9 +98,8 @@ pub fn get_sample_from_rng_by_seed(
     rng.sample_iter(range).take(degree)
 }
 
-impl Iterator for RobustEncoder {
-    type Item = Droplet;
-    fn next(&mut self) -> Option<Droplet> {
+impl Encoder for RobustEncoder {
+    fn next(&mut self) -> Droplet {
         let drop = match self.encodertype {
             EncoderType::Random => {
                 let degree = self.sol.next();
@@ -114,20 +115,20 @@ impl Iterator for RobustEncoder {
                         *drop_dat ^= src_dat;
                     }
                 }
-                Some(Droplet::new(DropType::Seeded(seed, degree), r))
+                Droplet::new(DropType::Seeded(seed, degree), r)
             }
             EncoderType::Systematic => {
-                let begin = self.cnt * self.blocksize;
-                let end = cmp::min((self.cnt + 1) * self.blocksize, self.len);
+                let begin = (self.cnt % self.cnt_blocks) * self.blocksize;
+                let end = cmp::min(((self.cnt % self.cnt_blocks) + 1) * self.blocksize, self.len);
                 let mut r = vec![0; self.blocksize];
 
                 for (src_dat, drop_dat) in self.data[begin..end].iter().zip(r.iter_mut()) {
                     *drop_dat = *src_dat;
                 }
-                if (self.cnt + 2) > self.cnt_blocks {
+                if (self.cnt + 2) > self.cnt_blocks * 2 {
                     self.encodertype = EncoderType::Random;
                 }
-                Some(Droplet::new(DropType::Edges(self.cnt), r))
+                Droplet::new(DropType::Edges(self.cnt % self.cnt_blocks), r)
             }
         };
 
