@@ -3,8 +3,8 @@ extern crate rand;
 extern crate stopwatch;
 
 use self::fountaincode::decoder::Decoder;
-use self::fountaincode::robust_encoder::RobustEncoder;
 use self::fountaincode::encoder::Encoder;
+use self::fountaincode::robust_encoder::RobustEncoder;
 use self::fountaincode::types::*;
 use proptest::prelude::*;
 use rand::distributions::Alphanumeric;
@@ -12,7 +12,7 @@ use rand::{thread_rng, Rng};
 use stopwatch::Stopwatch;
 
 proptest! {
-    #![proptest_config(ProptestConfig::with_cases(50000))]
+    #![proptest_config(ProptestConfig::with_cases(10000))]
     #[test]
     fn robust_prop_test(total_len in 1024u64..8192, chunk_len in 8u32..512) {
         let s: String = thread_rng()
@@ -35,7 +35,7 @@ proptest! {
 }
 
 proptest! {
-    #![proptest_config(ProptestConfig::with_cases(50000))]
+    #![proptest_config(ProptestConfig::with_cases(10000))]
     #[test]
     fn robust_prop_lossy_test(total_len in 1024u64..8192, chunk_len in 8u32..512) {
         let s: String = thread_rng()
@@ -71,7 +71,7 @@ fn run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
             }
             CatchResult::Finished(data, _stats) => {
                 // println!("Finished, stats: {:?}", stats);
-                break data
+                break data;
             }
         }
     }
@@ -88,7 +88,7 @@ fn run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
                 }
                 CatchResult::Finished(data, stats) => {
                     println!("overhead: {:?}", stats.overhead);
-                    break data
+                    break data;
                 }
             }
         }

@@ -1,7 +1,7 @@
 use crate::{
     droplet::Droplet,
-    ideal_soliton::IdealSoliton,
     encoder::Encoder,
+    ideal_soliton::IdealSoliton,
     soliton::Soliton,
     types::{DropType, EncoderType},
 };
@@ -110,7 +110,10 @@ impl Encoder for IdealEncoder {
             }
             EncoderType::Systematic => {
                 let begin = (self.cnt % self.cnt_blocks) * self.blocksize;
-                let end = cmp::min(((self.cnt % self.cnt_blocks) + 1) * self.blocksize, self.len);
+                let end = cmp::min(
+                    ((self.cnt % self.cnt_blocks) + 1) * self.blocksize,
+                    self.len,
+                );
                 let mut r = vec![0; self.blocksize];
 
                 for (src_dat, drop_dat) in self.data[begin..end].iter().zip(r.iter_mut()) {

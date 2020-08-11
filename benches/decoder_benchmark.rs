@@ -1,9 +1,9 @@
 use criterion::*;
 
 use fountaincode::decoder::Decoder;
+use fountaincode::encoder::Encoder;
 use fountaincode::ideal_encoder::IdealEncoder;
 use fountaincode::robust_encoder::RobustEncoder;
-use fountaincode::encoder::Encoder;
 use fountaincode::types::*;
 use itertools::iproduct;
 use rand::distributions::Alphanumeric;
@@ -71,8 +71,7 @@ fn ideal_enc_dec_helper(total_len: usize, chunk_len: usize, loss: f32, enc_type:
         let drop = enc.next();
         if loss_rng.gen::<f32>() > loss {
             match dec.catch(drop) {
-                CatchResult::Missing(_stats) => {
-                }
+                CatchResult::Missing(_stats) => {}
                 CatchResult::Finished(data, _stats) => {
                     assert_eq!(to_compare.len(), data.len());
                     for i in 0..len {

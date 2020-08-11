@@ -2,8 +2,8 @@ extern crate fountaincode;
 extern crate rand;
 
 use self::fountaincode::decoder::Decoder;
-use self::fountaincode::robust_encoder::RobustEncoder;
 use self::fountaincode::encoder::Encoder;
+use self::fountaincode::robust_encoder::RobustEncoder;
 use self::fountaincode::types::*;
 
 use rand::distributions::Alphanumeric;

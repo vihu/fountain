@@ -3,8 +3,8 @@ extern crate rand;
 extern crate stopwatch;
 
 use self::fountaincode::decoder::Decoder;
-use self::fountaincode::ideal_encoder::IdealEncoder;
 use self::fountaincode::encoder::Encoder;
+use self::fountaincode::ideal_encoder::IdealEncoder;
 use self::fountaincode::robust_encoder::RobustEncoder;
 use self::fountaincode::types::*;
 use proptest::prelude::*;
@@ -13,7 +13,7 @@ use rand::{thread_rng, Rng};
 use stopwatch::Stopwatch;
 
 proptest! {
-    #![proptest_config(ProptestConfig::with_cases(100000))]
+    #![proptest_config(ProptestConfig::with_cases(10000))]
     #[test]
     fn compare_prop_test(total_len in 1024u64..8192, chunk_len in 8u32..512) {
         let s: String = thread_rng()
@@ -42,7 +42,7 @@ proptest! {
 }
 
 proptest! {
-    #![proptest_config(ProptestConfig::with_cases(100000))]
+    #![proptest_config(ProptestConfig::with_cases(10000))]
     #[test]
     fn compare_prop_lossy_test(total_len in 1024u64..8192, chunk_len in 8u32..512) {
         let s: String = thread_rng()
@@ -85,7 +85,7 @@ fn robust_run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
             }
             CatchResult::Finished(data, stats) => {
                 println!("robust_overhead: {:?}", stats.overhead);
-                break data
+                break data;
             }
         }
     }
@@ -100,7 +100,7 @@ fn ideal_run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
             }
             CatchResult::Finished(data, stats) => {
                 println!("ideal_overhead: {:?}", stats.overhead);
-                break data
+                break data;
             }
         }
     };
@@ -119,7 +119,7 @@ fn robust_run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Ve
                 }
                 CatchResult::Finished(data, stats) => {
                     println!("robust_overhead: {:?}", stats.overhead);
-                    break data
+                    break data;
                 }
             }
         }
@@ -137,7 +137,7 @@ fn ideal_run_lossy(enc: &mut IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<
                 }
                 CatchResult::Finished(data, stats) => {
                     println!("ideal_overhead: {:?}", stats.overhead);
-                    break data
+                    break data;
                 }
             }
         }
