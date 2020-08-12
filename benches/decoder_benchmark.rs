@@ -96,22 +96,30 @@ fn bench_ideal_vs_robust(c: &mut Criterion) {
     let robust_delta = 0.05;
 
     for (size, chunk, loss) in iproduct!(&sizes, &chunks, &losses) {
-        group.bench_with_input(BenchmarkId::new("Ideal", size), size, |b, size| {
-            b.iter(|| ideal_enc_dec_helper(*size, *chunk, *loss, EncoderType::Systematic))
-        });
-        group.bench_with_input(BenchmarkId::new("Robust", size), size, |b, size| {
-            b.iter(|| {
-                robust_enc_dec_helper(
-                    *size,
-                    *chunk,
-                    *loss,
-                    robust_c,
-                    None,
-                    robust_delta,
-                    EncoderType::Systematic,
-                )
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::from_parameter(format!("Ideal_{}_{}_{}", size, chunk, loss)),
+            size,
+            |b, size| {
+                b.iter(|| ideal_enc_dec_helper(*size, *chunk, *loss, EncoderType::Systematic))
+            },
+        );
+        group.bench_with_input(
+            BenchmarkId::from_parameter(format!("Robust_{}_{}_{}", size, chunk, loss)),
+            size,
+            |b, size| {
+                b.iter(|| {
+                    robust_enc_dec_helper(
+                        *size,
+                        *chunk,
+                        *loss,
+                        robust_c,
+                        None,
+                        robust_delta,
+                        EncoderType::Systematic,
+                    )
+                })
+            },
+        );
     }
     group.finish();
 }
