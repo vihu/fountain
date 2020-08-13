@@ -2,8 +2,6 @@ use criterion::*;
 
 use fountaincode::decoder::Decoder;
 use fountaincode::encoder::Encoder;
-use fountaincode::ideal_encoder::IdealEncoder;
-use fountaincode::robust_encoder::RobustEncoder;
 use fountaincode::types::*;
 use itertools::iproduct;
 use rand::distributions::Alphanumeric;
@@ -19,12 +17,12 @@ fn robust_enc_dec_helper(
     msg: Vec<u8>,
 ) {
     let to_compare = msg.clone();
-    let mut enc = RobustEncoder::new(msg, chunk_len, enc_type, c, spike, delta);
+    let mut enc = Encoder::robust(msg, chunk_len, enc_type, c, spike, delta);
     let mut dec = Decoder::new(to_compare.len(), chunk_len);
     let mut loss_rng = thread_rng();
 
     loop {
-        let drop = enc.next();
+        let drop = enc.drop();
         if loss_rng.gen::<f32>() > loss {
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {}
@@ -39,12 +37,12 @@ fn robust_enc_dec_helper(
 
 fn ideal_enc_dec_helper(chunk_len: usize, loss: f32, enc_type: EncoderType, msg: Vec<u8>) {
     let to_compare = msg.clone();
-    let mut enc = IdealEncoder::new(msg, chunk_len, enc_type);
+    let mut enc = Encoder::ideal(msg, chunk_len, enc_type);
     let mut dec = Decoder::new(to_compare.len(), chunk_len);
     let mut loss_rng = thread_rng();
 
     loop {
-        let drop = enc.next();
+        let drop = enc.drop();
         if loss_rng.gen::<f32>() > loss {
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {}

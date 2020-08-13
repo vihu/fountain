@@ -1,8 +1,6 @@
 extern crate fountaincode;
 extern crate rand;
 
-use self::fountaincode::ideal_soliton::IdealSoliton;
-use self::fountaincode::robust_soliton::RobustSoliton;
 use self::fountaincode::soliton::Soliton;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 
@@ -16,9 +14,9 @@ fn soliton_compare_test() {
     let tot_iterations = 10000;
     let mut rng = StdRng::from_entropy();
     let cnt_blocks = 100;
-    let mut sol = IdealSoliton::new(cnt_blocks, rng.gen::<u64>());
-    let mut rsol = RobustSoliton::new(cnt_blocks, rng.gen::<u64>(), 0.2, None, 0.05);
-    let mut rsol2 = RobustSoliton::new(cnt_blocks, rng.gen::<u64>(), 0.2, Some(40), 0.05);
+    let mut sol = Soliton::ideal(cnt_blocks, rng.gen::<u64>());
+    let mut rsol = Soliton::robust(cnt_blocks, rng.gen::<u64>(), 0.2, None, 0.05);
+    let mut rsol2 = Soliton::robust(cnt_blocks, rng.gen::<u64>(), 0.2, Some(40), 0.05);
 
     // println!("sol: {:#?}", sol);
     // println!("rsol: {:#?}", rsol);
@@ -29,9 +27,9 @@ fn soliton_compare_test() {
     let mut r_sum2 = 0;
 
     for _ in 1..tot_iterations {
-        let i_next = sol.next();
-        let r_next = rsol.next();
-        let r2_next = rsol2.next();
+        let i_next = sol.gen();
+        let r_next = rsol.gen();
+        let r2_next = rsol2.gen();
         i_sum += i_next;
         r_sum += r2_next;
         r_sum2 += r2_next;

@@ -4,7 +4,6 @@ extern crate stopwatch;
 
 use self::fountaincode::decoder::Decoder;
 use self::fountaincode::encoder::Encoder;
-use self::fountaincode::robust_encoder::RobustEncoder;
 use self::fountaincode::types::*;
 use proptest::prelude::*;
 use rand::distributions::Alphanumeric;
@@ -23,7 +22,7 @@ proptest! {
         let len = buf.len();
         let to_compare = buf.clone();
 
-        let mut enc = RobustEncoder::new(buf, chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
+        let mut enc = Encoder::robust(buf, chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
         let mut dec = Decoder::new(len, chunk_len as usize);
 
         let sw = Stopwatch::start_new();
@@ -52,7 +51,7 @@ proptest! {
         let mut res: Vec<u8> = vec![];
 
         for loss in losses {
-            let mut enc = RobustEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
+            let mut enc = Encoder::robust(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
             let sw = Stopwatch::start_new();
             res = run_lossy(&mut enc, &mut dec, loss);
             println!("total_len: {:?}, chunk_len: {:?}, loss: {:?}, time: {:#?}", total_len, chunk_len, loss, sw.elapsed());
@@ -62,9 +61,9 @@ proptest! {
     }
 }
 
-fn run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
+fn run(enc: &mut Encoder, dec: &mut Decoder) -> Vec<u8> {
     loop {
-        let drop = enc.next();
+        let drop = enc.drop();
         match dec.catch(drop) {
             CatchResult::Missing(_stats) => {
                 // println!("Missing blocks {:?}", stats);
@@ -77,11 +76,11 @@ fn run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
     }
 }
 
-fn run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
+fn run_lossy(enc: &mut Encoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
     loop {
         if loss_rng.gen::<f32>() > loss {
-            let drop = enc.next();
+            let drop = enc.drop();
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {
                     // println!("Missing blocks {:?}", stats);
