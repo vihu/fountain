@@ -33,7 +33,6 @@ impl Soliton {
     }
 
     pub fn robust(k: usize, seed: u64, c: f32, spike: Option<usize>, delta: f32) -> Self {
-        let r = compute_r(k, c, delta);
         if let Some(m) = spike {
             // Spike position was given, use that instead of calculating
             let r = k as f32 / m as f32;
@@ -49,6 +48,7 @@ impl Soliton {
                 curr: 0,
             }
         } else {
+            let r = compute_r(k, c, delta);
             let m = compute_m(k, r);
             let beta = compute_beta(k, m, r, delta);
             Self::Robust {

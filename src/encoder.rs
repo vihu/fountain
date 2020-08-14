@@ -66,7 +66,7 @@ impl Encoder {
     ) -> Self {
         let mut rng = StdRng::from_entropy();
         let len = data.len();
-        let cnt_blocks = ((len as f32) / blocksize as f32).ceil() as usize;
+        let cnt_blocks = (len + blocksize - 1) / blocksize;
         let sol = Soliton::robust(cnt_blocks, rng.gen::<u64>(), c, spike, delta);
         Encoder {
             data,
@@ -84,7 +84,7 @@ impl Encoder {
     pub fn ideal(data: Vec<u8>, blocksize: usize, encodertype: EncoderType) -> Self {
         let mut rng = StdRng::from_entropy();
         let len = data.len();
-        let cnt_blocks = ((len as f32) / blocksize as f32).ceil() as usize;
+        let cnt_blocks = (len + blocksize - 1) / blocksize;
         let sol = Soliton::ideal(cnt_blocks, rng.gen::<u64>());
         Self {
             data,
@@ -100,12 +100,13 @@ impl Encoder {
     }
 
     pub fn drop(&mut self) -> Droplet {
+        let mut r = vec![0; self.blocksize];
+
         let drop = match self.encodertype {
             EncoderType::Random => {
                 let degree = self.sol.gen();
                 let seed = self.rng.gen::<u64>();
                 let sample = get_sample_from_rng_by_seed(seed, self.dist, degree);
-                let mut r = vec![0; self.blocksize];
 
                 for k in sample {
                     let begin = k * self.blocksize;
@@ -123,7 +124,6 @@ impl Encoder {
                     ((self.cnt % self.cnt_blocks) + 1) * self.blocksize,
                     self.len,
                 );
-                let mut r = vec![0; self.blocksize];
 
                 for (src_dat, drop_dat) in self.data[begin..end].iter().zip(r.iter_mut()) {
                     *drop_dat = *src_dat;

@@ -21,6 +21,6 @@ before_script:
 script:
     - cargo build --verbose
     - cargo test --verbose
-    - cargo clippy -- -Fclippy::all
+    - cargo clippy --all-targets -- -Dclippy::all
     - cargo fmt -- --check
     - cargo doc --verbose

@@ -1,12 +1,9 @@
-extern crate fountaincode;
-extern crate rand;
-
-use self::fountaincode::decoder::Decoder;
-use self::fountaincode::encoder::Encoder;
-use self::fountaincode::types::*;
-
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use fountaincode::{
+    decoder::Decoder,
+    encoder::Encoder,
+    types::{CatchResult, EncoderType},
+};
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
 fn enc_dec_helper(total_len: usize, chunk_len: usize, loss: f32, enc_type: EncoderType) {
     let s: String = thread_rng()
