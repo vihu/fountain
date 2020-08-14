@@ -1,5 +1,5 @@
 use fountaincode::soliton::Soliton;
-use rand::{rngs::StdRng, Rng, SeedableRng};
+use rand::{distributions::Distribution, rngs::StdRng, SeedableRng};
 
 #[test]
 fn soliton_compare_test() {
@@ -11,9 +11,9 @@ fn soliton_compare_test() {
     let tot_iterations = 10000;
     let mut rng = StdRng::from_entropy();
     let cnt_blocks = 100;
-    let mut sol = Soliton::ideal(cnt_blocks, rng.gen::<u64>());
-    let mut rsol1 = Soliton::robust(cnt_blocks, rng.gen::<u64>(), 0.2, None, 0.05);
-    let mut rsol2 = Soliton::robust(cnt_blocks, rng.gen::<u64>(), 0.2, Some(40), 0.05);
+    let sol = Soliton::ideal(cnt_blocks);
+    let rsol1 = Soliton::robust(cnt_blocks, 0.2, None, 0.05);
+    let rsol2 = Soliton::robust(cnt_blocks, 0.2, Some(40), 0.05);
 
     // println!("sol: {:#?}", sol);
     // println!("rsol: {:#?}", rsol);
@@ -24,9 +24,9 @@ fn soliton_compare_test() {
     let mut r_sum2 = 0;
 
     for _ in 1..tot_iterations {
-        let i_next = sol.gen();
-        let r_next1 = rsol1.gen();
-        let r_next2 = rsol2.gen();
+        let i_next = sol.sample(&mut rng);
+        let r_next1 = rsol1.sample(&mut rng);
+        let r_next2 = rsol2.sample(&mut rng);
         i_sum += i_next;
         r_sum1 += r_next2;
         r_sum2 += r_next2;

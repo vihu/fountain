@@ -3,7 +3,7 @@ use crate::{
     soliton::Soliton,
 };
 use rand::{
-    distributions::Uniform,
+    distributions::{Distribution, Uniform},
     rngs::StdRng,
     {Rng, SeedableRng},
 };
@@ -38,7 +38,7 @@ pub struct Encoder {
     len: usize,
     blocksize: usize,
     rng: StdRng,
-    dist: rand::distributions::Uniform<usize>,
+    dist: Uniform<usize>,
     cnt_blocks: usize,
     sol: Soliton,
     pub cnt: usize,
@@ -54,10 +54,10 @@ impl Encoder {
         spike: Option<usize>,
         delta: f32,
     ) -> Self {
-        let mut rng = StdRng::from_entropy();
+        let rng = StdRng::from_entropy();
         let len = data.len();
         let cnt_blocks = (len + blocksize - 1) / blocksize;
-        let sol = Soliton::robust(cnt_blocks, rng.gen::<u64>(), c, spike, delta);
+        let sol = Soliton::robust(cnt_blocks, c, spike, delta);
         Encoder {
             data,
             len,
@@ -72,10 +72,10 @@ impl Encoder {
     }
 
     pub fn ideal(data: Vec<u8>, blocksize: usize, encodertype: EncoderType) -> Self {
-        let mut rng = StdRng::from_entropy();
+        let rng = StdRng::from_entropy();
         let len = data.len();
         let cnt_blocks = (len + blocksize - 1) / blocksize;
-        let sol = Soliton::ideal(cnt_blocks, rng.gen::<u64>());
+        let sol = Soliton::ideal(cnt_blocks);
         Self {
             data,
             len,
@@ -94,7 +94,7 @@ impl Encoder {
 
         let drop = match self.encodertype {
             EncoderType::Random => {
-                let degree = self.sol.gen();
+                let degree = self.sol.sample(&mut self.rng);
                 let seed = self.rng.gen::<u64>();
                 let sample = get_sample_from_rng_by_seed(seed, self.dist, degree);
 
