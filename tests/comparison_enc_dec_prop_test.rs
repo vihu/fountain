@@ -4,8 +4,6 @@ extern crate stopwatch;
 
 use self::fountaincode::decoder::Decoder;
 use self::fountaincode::encoder::Encoder;
-use self::fountaincode::ideal_encoder::IdealEncoder;
-use self::fountaincode::robust_encoder::RobustEncoder;
 use self::fountaincode::types::*;
 use proptest::prelude::*;
 use rand::distributions::Alphanumeric;
@@ -25,11 +23,11 @@ proptest! {
 
         let mut dec = Decoder::new(len, chunk_len as usize);
 
-        let mut renc = RobustEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
+        let mut renc = Encoder::robust(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
         let mut sw = Stopwatch::start_new();
         let res1 = robust_run(&mut renc, &mut dec);
         let t1 = sw.elapsed();
-        let mut ienc = IdealEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic);
+        let mut ienc = Encoder::ideal(buf.clone(), chunk_len as usize, EncoderType::Systematic);
         sw.restart();
         let res2 = ideal_run(&mut ienc, &mut dec);
         let t2 = sw.elapsed();
@@ -59,11 +57,11 @@ proptest! {
         let mut res2: Vec<u8> = vec![];
 
         for loss in losses {
-            let mut renc = RobustEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
+            let mut renc = Encoder::robust(buf.clone(), chunk_len as usize, EncoderType::Systematic, 0.2, None, 0.05);
             let mut sw = Stopwatch::start_new();
             res1 = robust_run_lossy(&mut renc, &mut dec, loss);
             let t1 = sw.elapsed();
-            let mut ienc = IdealEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic);
+            let mut ienc = Encoder::ideal(buf.clone(), chunk_len as usize, EncoderType::Systematic);
             sw.restart();
             res2 = ideal_run_lossy(&mut ienc, &mut dec, loss);
             let t2 = sw.elapsed();
@@ -76,9 +74,9 @@ proptest! {
     }
 }
 
-fn robust_run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
+fn robust_run(enc: &mut Encoder, dec: &mut Decoder) -> Vec<u8> {
     loop {
-        let drop = enc.next();
+        let drop = enc.drop();
         match dec.catch(drop) {
             CatchResult::Missing(stats) => {
                 println!("robust unknown_chunks: {:?}", stats.unknown_chunks);
@@ -91,9 +89,9 @@ fn robust_run(enc: &mut RobustEncoder, dec: &mut Decoder) -> Vec<u8> {
     }
 }
 
-fn ideal_run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
+fn ideal_run(enc: &mut Encoder, dec: &mut Decoder) -> Vec<u8> {
     let out = loop {
-        let drop = enc.next();
+        let drop = enc.drop();
         match dec.catch(drop) {
             CatchResult::Missing(stats) => {
                 println!("ideal unknown_chunks: {:?}", stats.unknown_chunks);
@@ -107,12 +105,12 @@ fn ideal_run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
     out
 }
 
-fn robust_run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
+fn robust_run_lossy(enc: &mut Encoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
 
     loop {
         if loss_rng.gen::<f32>() > loss {
-            let drop = enc.next();
+            let drop = enc.drop();
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {
                     // println!("Missing blocks {:?}", stats);
@@ -126,11 +124,11 @@ fn robust_run_lossy(enc: &mut RobustEncoder, dec: &mut Decoder, loss: f32) -> Ve
     }
 }
 
-fn ideal_run_lossy(enc: &mut IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
+fn ideal_run_lossy(enc: &mut Encoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
     loop {
         if loss_rng.gen::<f32>() > loss {
-            let drop = enc.next();
+            let drop = enc.drop();
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {
                     // println!("Missing blocks {:?}", stats);

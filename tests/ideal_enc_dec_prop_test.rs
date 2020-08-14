@@ -4,7 +4,6 @@ extern crate stopwatch;
 
 use self::fountaincode::decoder::Decoder;
 use self::fountaincode::encoder::Encoder;
-use self::fountaincode::ideal_encoder::IdealEncoder;
 use self::fountaincode::types::*;
 use proptest::prelude::*;
 use rand::distributions::Alphanumeric;
@@ -23,7 +22,7 @@ proptest! {
         let len = buf.len();
         let to_compare = buf.clone();
 
-        let mut enc = IdealEncoder::new(buf, chunk_len as usize, EncoderType::Systematic);
+        let mut enc = Encoder::ideal(buf, chunk_len as usize, EncoderType::Systematic);
         let mut dec = Decoder::new(len, chunk_len as usize);
 
         let sw = Stopwatch::start_new();
@@ -51,7 +50,7 @@ proptest! {
         let losses = vec![0.1, 0.3, 0.5, 0.9];
 
         for loss in losses {
-            let mut enc = IdealEncoder::new(buf.clone(), chunk_len as usize, EncoderType::Systematic);
+            let mut enc = Encoder::ideal(buf.clone(), chunk_len as usize, EncoderType::Systematic);
             let sw = Stopwatch::start_new();
             res = run_lossy(&mut enc, &mut dec, loss);
             println!("total_len: {:?}, chunk_len: {:?}, loss: {:?}, time: {:#?}", total_len, chunk_len, loss, sw.elapsed());
@@ -61,9 +60,9 @@ proptest! {
     }
 }
 
-fn run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
+fn run(enc: &mut Encoder, dec: &mut Decoder) -> Vec<u8> {
     loop {
-        let drop = enc.next();
+        let drop = enc.drop();
         match dec.catch(drop) {
             CatchResult::Missing(_stats) => {
                 // println!("Missing blocks {:?}", stats);
@@ -77,11 +76,11 @@ fn run(enc: &mut IdealEncoder, dec: &mut Decoder) -> Vec<u8> {
     }
 }
 
-fn run_lossy(enc: &mut IdealEncoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
+fn run_lossy(enc: &mut Encoder, dec: &mut Decoder, loss: f32) -> Vec<u8> {
     let mut loss_rng = thread_rng();
     loop {
         if loss_rng.gen::<f32>() > loss {
-            let drop = enc.next();
+            let drop = enc.drop();
             match dec.catch(drop) {
                 CatchResult::Missing(_stats) => {
                     // println!("Missing blocks {:?}", stats);

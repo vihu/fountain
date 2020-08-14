@@ -3,7 +3,6 @@ extern crate rand;
 
 use self::fountaincode::decoder::Decoder;
 use self::fountaincode::encoder::Encoder;
-use self::fountaincode::ideal_encoder::IdealEncoder;
 use self::fountaincode::types::*;
 
 use rand::distributions::Alphanumeric;
@@ -18,13 +17,13 @@ fn enc_dec_helper(total_len: usize, chunk_len: usize, loss: f32, enc_type: Encod
     let len = buf.len();
     let to_compare = buf.clone();
 
-    let mut enc = IdealEncoder::new(buf, chunk_len, enc_type);
+    let mut enc = Encoder::ideal(buf, chunk_len, enc_type);
     let mut dec = Decoder::new(len, chunk_len);
 
     let mut loss_rng = thread_rng();
 
     loop {
-        let drop = enc.next();
+        let drop = enc.drop();
 
         if loss_rng.gen::<f32>() > loss {
             match dec.catch(drop) {
