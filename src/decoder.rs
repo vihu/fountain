@@ -5,7 +5,36 @@ use crate::{
 };
 use rand::distributions::Uniform;
 
-/// Decoder for the Luby transform
+/// Decoder for Luby Transform codes.
+///
+/// # Example
+///
+/// ```
+/// use fountaincode::{
+///     decoder::{CatchResult, Decoder},
+///     encoder::{Encoder, EncoderType},
+/// };
+///
+/// // For demonstration purposes, our message is just a range `u8`s.
+/// let src_msg: Vec<u8> = (0..255).collect();
+///
+/// let mut enc = Encoder::ideal(src_msg.clone(), 64, EncoderType::Random);
+/// let mut dec = Decoder::new(src_msg.len(), 64);
+///
+/// loop {
+///     let drop = enc.drop();
+///     match dec.catch(drop) {
+///         CatchResult::Missing(stats) => {
+///             println!("Missing blocks {:?}", stats);
+///         }
+///         CatchResult::Finished(reconstructed_msg, stats) => {
+///             assert_eq!(src_msg, reconstructed_msg);
+///             println!("Finished, stats: {:?}", stats);
+///             break;
+///         }
+///     }
+/// }
+/// ```
 pub struct Decoder {
     total_length: usize,
     blocksize: usize,
@@ -26,47 +55,6 @@ pub struct Statistics {
 }
 
 impl Decoder {
-    /// Creates a new Decoder for LT codes
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// extern crate rand;
-    /// extern crate fountaincode;
-    ///
-    /// fn main() {
-    ///     use self::fountaincode::decoder::Decoder;
-    ///     use self::fountaincode::encoder::Encoder;
-    ///     use self::fountaincode::types::*;
-    ///     use self::rand::{thread_rng, Rng};
-    ///     use rand::distributions::Alphanumeric;
-    ///
-    ///     let s:String = thread_rng().sample_iter(Alphanumeric).take(1024).collect();
-    ///     let buf = s.into_bytes();
-    ///     let to_compare = buf.clone();
-    ///     let length = buf.len();
-    ///
-    ///     let mut enc = Encoder::ideal(buf, 64, EncoderType::Random);
-    ///     let mut dec = Decoder::new(length, 64);
-    ///
-    ///     loop {
-    ///         let drop = enc.drop();
-    ///         match dec.catch(drop) {
-    ///             CatchResult::Missing(stats) => {
-    ///                 println!("Missing blocks {:?}", stats);
-    ///             }
-    ///             CatchResult::Finished(data, stats) => {
-    ///                 for i in 0..length {
-    ///                     assert_eq!(to_compare[i], data[i]);
-    ///                 }
-    ///                 println!("Finished, stats: {:?}", stats);
-    ///                 //write data to disk??
-    ///                 return
-    ///             }
-    ///         }
-    ///     }
-    /// }
-    /// ```
     pub fn new(len: usize, blocksize: usize) -> Decoder {
         let number_of_chunks = (len + blocksize - 1) / blocksize;
         let data: Vec<u8> = vec![0; number_of_chunks * blocksize];

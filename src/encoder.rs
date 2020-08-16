@@ -9,7 +9,29 @@ use rand::{
 };
 use std::cmp;
 
-/// Encoder for Luby transform codes
+/// Encoder for Luby Transform codes.
+///
+/// In case you send the packages over UDP, the blocksize should be
+/// the MTU size.
+///
+/// There are two encoding modes, Systematic and Random.  The
+/// Systematic encoder first produces a set of the source
+/// symbols. After each symbol is sent once, it switches to Random.
+///
+/// # Example
+///
+/// ```
+/// use fountaincode::encoder::{Encoder, EncoderType};
+///
+/// // For demonstration purposes, our message is just a range `u8`s.
+/// let msg: Vec<u8> = (0..255).collect();
+///
+/// let mut enc = Encoder::robust(msg, 64, EncoderType::Random, 0.2, None, 0.05);
+///
+/// for i in 1..10 {
+///     println!("droplet {:?}: {:?}", i, enc.next());
+/// }
+/// ```
 #[derive(Clone)]
 pub struct Encoder {
     data: Vec<u8>,
@@ -23,37 +45,6 @@ pub struct Encoder {
     encodertype: EncoderType,
 }
 
-/// Encoder for Luby transform codes.
-///
-/// In case you send the packages over UDP, the blocksize
-/// should be the MTU size.
-///
-/// There are two versions of the 'Encoder', Systematic and Random.
-/// The Systematic encoder first produces a set of the source symbols. After each
-/// symbol is sent once, it switches to Random.
-///
-/// # Examples
-///
-/// ```
-/// extern crate rand;
-/// extern crate fountaincode;
-///
-/// fn main() {
-///     use fountaincode::encoder::Encoder;
-///     use fountaincode::types::EncoderType;
-///     use self::rand::{thread_rng, Rng};
-///     use rand::distributions::Alphanumeric;
-///
-///     let s: String = thread_rng().sample_iter(Alphanumeric).take(1024).collect();
-///     let buf = s.into_bytes();
-///
-///     let mut enc = Encoder::robust(buf, 64, EncoderType::Random, 0.2, None, 0.05);
-///
-///     for i in 1..10 {
-///         println!("droplet {:?}: {:?}", i, enc.next());
-///     }
-/// }
-/// ```
 impl Encoder {
     pub fn robust(
         data: Vec<u8>,
