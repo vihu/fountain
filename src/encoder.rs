@@ -1,7 +1,6 @@
 use crate::{
-    droplet::Droplet,
+    droplet::{DropType, Droplet},
     soliton::Soliton,
-    types::{DropType, EncoderType},
 };
 use rand::{
     distributions::Uniform,
@@ -154,4 +153,15 @@ impl Iterator for Encoder {
     fn next(&mut self) -> Option<Droplet> {
         Some(self.drop())
     }
+}
+
+#[derive(Clone, Debug)]
+pub enum EncoderType {
+    /// The first k symbols of a systematic Encoder correspond to the first k source symbols
+    /// In case there is no loss, no repair needed. After the first k symbols are sent, it continous
+    /// like in the Random case.
+    Systematic,
+    /// Begins immediately with random encoding.
+    /// This may be a better choice when used with high-loss channels.
+    Random,
 }

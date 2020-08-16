@@ -1,8 +1,7 @@
 use crate::{
     block::Block,
-    droplet::{Droplet, RxDroplet},
+    droplet::{DropType, Droplet, RxDroplet},
     encoder::get_sample_from_rng_by_seed,
-    types::{CatchResult, DropType},
 };
 use rand::distributions::Uniform;
 
@@ -186,4 +185,10 @@ impl Decoder {
             CatchResult::Missing(stats)
         }
     }
+}
+
+#[derive(Debug)]
+pub enum CatchResult {
+    Finished(Vec<u8>, Statistics),
+    Missing(Statistics),
 }

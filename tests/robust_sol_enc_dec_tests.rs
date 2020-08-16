@@ -1,7 +1,6 @@
 use fountaincode::{
-    decoder::Decoder,
-    encoder::Encoder,
-    types::{CatchResult, EncoderType},
+    decoder::{CatchResult, Decoder},
+    encoder::{Encoder, EncoderType},
 };
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 

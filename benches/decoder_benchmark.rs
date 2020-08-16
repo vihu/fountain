@@ -1,8 +1,7 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use fountaincode::{
-    decoder::Decoder,
-    encoder::Encoder,
-    types::{CatchResult, EncoderType},
+    decoder::{CatchResult, Decoder},
+    encoder::{Encoder, EncoderType},
 };
 use itertools::iproduct;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};

@@ -1,4 +1,10 @@
-use crate::types::DropType;
+#[derive(Debug)]
+pub enum DropType {
+    /// First is seed, second degree
+    Seeded(u64, usize),
+    /// Just a list of edges
+    Edges(usize),
+}
 
 /// A Droplet is created by the Encoder.
 #[derive(Debug)]
