@@ -1,6 +1,7 @@
 use crate::{
     droplet::{DropType, Droplet},
     soliton::Soliton,
+    xor::xor_bytes,
 };
 use rand::{
     distributions::{Distribution, Uniform},
@@ -101,10 +102,7 @@ impl Encoder {
                 for k in sample {
                     let begin = k * self.blocksize;
                     let end = cmp::min((k + 1) * self.blocksize, self.len);
-
-                    for (src_dat, drop_dat) in self.data[begin..end].iter().zip(r.iter_mut()) {
-                        *drop_dat ^= src_dat;
-                    }
+                    xor_bytes(&mut r, &self.data[begin..end]);
                 }
                 Droplet::new(DropType::Seeded(seed, degree), r)
             }
