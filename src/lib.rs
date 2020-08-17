@@ -1,8 +1,5 @@
-extern crate rand;
-
 pub mod block;
 pub mod decoder;
 pub mod droplet;
 pub mod encoder;
 pub mod soliton;
-pub mod types;
