@@ -7,8 +7,6 @@ pub enum Soliton {
     },
     Robust {
         k: usize,
-        // constant
-        c: f32,
         // another constant
         r: f32,
         // failure probability
@@ -34,7 +32,6 @@ impl Soliton {
             let beta = compute_beta(k, m, r, delta);
             Self::Robust {
                 k,
-                c,
                 r,
                 delta,
                 beta,
@@ -46,7 +43,6 @@ impl Soliton {
             let beta = compute_beta(k, m, r, delta);
             Self::Robust {
                 k,
-                c,
                 r,
                 delta,
                 beta,
@@ -69,7 +65,6 @@ impl Distribution<usize> for Soliton {
             }
             Self::Robust {
                 k,
-                c: _c,
                 r,
                 delta,
                 beta,
@@ -94,7 +89,7 @@ fn compute_r(k: usize, c: f32, delta: f32) -> f32 {
 }
 
 fn compute_m(k: usize, r: f32) -> usize {
-    ((k as f32) / r).floor() as usize
+    ((k as f32) / r).ceil() as usize
 }
 
 fn compute_beta(k: usize, m: usize, r: f32, delta: f32) -> f32 {
@@ -107,7 +102,7 @@ fn compute_beta(k: usize, m: usize, r: f32, delta: f32) -> f32 {
 }
 
 fn tau(index: usize, m: usize, r: f32, delta: f32) -> f32 {
-    if index >= 1 && index < m {
+    if index >= 1 && index <= m - 1 {
         (1 / (index * m)) as f32
     } else if index == m {
         (r / delta).ln() as f32 / m as f32
