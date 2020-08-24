@@ -102,7 +102,7 @@ fn compute_beta(k: usize, m: usize, r: f32, delta: f32) -> f32 {
 }
 
 fn tau(index: usize, m: usize, r: f32, delta: f32) -> f32 {
-    if index >= 1 && index <= m - 1 {
+    if index >= 1 && index < m {
         (1 / (index * m)) as f32
     } else if index == m {
         (r / delta).ln() as f32 / m as f32

@@ -2,11 +2,7 @@ extern crate fountaincode;
 extern crate rand;
 
 use self::fountaincode::soliton::Soliton;
-use rand::{
-    rngs::StdRng,
-    distributions::Distribution,
-    SeedableRng,
-};
+use rand::{distributions::Distribution, rngs::StdRng, SeedableRng};
 
 pub fn ideal_dist(n: usize) -> Vec<f64> {
     let mut probs = vec![0.0, 1.0 / n as f64];
